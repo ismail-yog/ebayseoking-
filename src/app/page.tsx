@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Sparkles, Zap, ArrowRight, Shield, RefreshCw, 
-  Layers, ChevronRight, CheckCircle2, Star, Smartphone
+  Layers, ChevronRight, CheckCircle2
 } from "lucide-react";
 import { AuthModal } from "@/components/landing/AuthModal";
 
@@ -65,16 +65,9 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#optimization" className="hover:text-white transition-colors">How it Works</a>
             <a href="#stats" className="hover:text-white transition-colors">Stats</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
           </nav>
 
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => openAuth("login")}
-              className="text-sm font-semibold hover:text-white text-gray-400 transition-colors bg-transparent border-0 cursor-pointer"
-            >
-              Sign In
-            </button>
             <button
               onClick={() => openAuth("signup")}
               className="relative group overflow-hidden px-4.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-semibold transition-all duration-300 hover:border-primary/30 cursor-pointer"
@@ -138,46 +131,6 @@ export default function LandingPage() {
                 <span>Start Free Trial</span>
                 <ArrowRight className="w-4.5 h-4.5" />
               </button>
-              <button
-                onClick={() => openAuth("otp")}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
-              >
-                <Smartphone className="w-4.5 h-4.5" />
-                <span>SMS OTP Sign In</span>
-              </button>
-            </motion.div>
-
-            {/* Ratings / Badges */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="mt-10 pt-10 border-t border-white/5 flex flex-wrap justify-center lg:justify-start items-center gap-6"
-            >
-              <div className="flex -space-x-2.5">
-                {[
-                  { initials: "JD", color: "from-indigo-500 to-purple-500" },
-                  { initials: "SK", color: "from-purple-500 to-pink-500" },
-                  { initials: "AM", color: "from-pink-500 to-cyan-500" },
-                  { initials: "SR", color: "from-cyan-500 to-blue-500" },
-                ].map((avatar, idx) => (
-                  <div
-                    key={idx}
-                    className={`w-8 h-8 rounded-full border-2 border-[#07070f] bg-gradient-to-tr ${avatar.color} flex items-center justify-center text-[10px] font-extrabold text-white`}
-                  >
-                    {avatar.initials}
-                  </div>
-                ))}
-              </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
-                  ))}
-                  <span className="text-xs font-semibold ml-1 text-white">4.9/5</span>
-                </div>
-                <p className="text-[10px] text-gray-500">Trusted by 2,000+ eBay Top Rated Sellers</p>
-              </div>
             </motion.div>
           </div>
 
@@ -343,92 +296,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-bg-secondary/40 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold font-heading mb-4 text-white">
-              Flexible Plans For Sellers of All Sizes
-            </h2>
-            <p className="text-sm text-gray-400">
-              No hidden fees. Scale up or down as your eBay inventory grows.
-            </p>
-          </div>
 
-          <div className="grid md:grid-cols-2 max-w-4xl mx-auto gap-8">
-            {/* Starter Plan */}
-            <div className="glass rounded-xl p-8 border border-white/5 hover:border-primary/20 transition-all duration-300 relative">
-              <h3 className="text-xl font-bold font-heading text-white">Grower</h3>
-              <p className="text-xs text-gray-500 mt-1">For budding side-hustlers</p>
-              <div className="my-6">
-                <span className="text-4xl font-extrabold text-white">$29</span>
-                <span className="text-xs text-gray-400"> / month</span>
-              </div>
-              <ul className="space-y-3 mb-8 text-xs text-gray-300">
-                <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-primary" />
-                  <span>Up to 250 active listings</span>
-                </li>
-                <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-primary" />
-                  <span>Claude 3.5 AI Optimization</span>
-                </li>
-                <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-primary" />
-                  <span>Basic Sync (2x daily)</span>
-                </li>
-                <li className="flex items-center gap-2.5 text-gray-500 line-through">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-gray-600" />
-                  <span>QStash instant batch queue</span>
-                </li>
-              </ul>
-              <button 
-                onClick={() => openAuth("signup")}
-                className="w-full py-3 rounded-lg border border-white/10 hover:border-primary/30 bg-white/5 hover:bg-white/10 text-xs font-semibold text-white transition-all cursor-pointer"
-              >
-                Get Started
-              </button>
-            </div>
-
-            {/* Pro Plan */}
-            <div className="glass rounded-xl p-8 border border-primary/30 hover:border-primary/50 transition-all duration-300 relative overflow-hidden bg-gradient-to-tr from-bg-secondary to-bg-primary">
-              <div className="absolute top-4 right-4 bg-gradient-to-r from-primary to-secondary text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white uppercase tracking-wider">
-                Popular
-              </div>
-              <h3 className="text-xl font-bold font-heading text-white">Empire</h3>
-              <p className="text-xs text-gray-500 mt-1">For high-volume merchants</p>
-              <div className="my-6">
-                <span className="text-4xl font-extrabold text-white">$79</span>
-                <span className="text-xs text-gray-400"> / month</span>
-              </div>
-              <ul className="space-y-3 mb-8 text-xs text-gray-300">
-                <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-secondary" />
-                  <span>Unlimited active listings</span>
-                </li>
-                <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-secondary" />
-                  <span>Claude 3.5 AI Advanced Title & HTML</span>
-                </li>
-                <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-secondary" />
-                  <span>Real-time instant eBay Sync</span>
-                </li>
-                <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-secondary" />
-                  <span>QStash instant batch queue (Sync All)</span>
-                </li>
-              </ul>
-              <button 
-                onClick={() => openAuth("signup")}
-                className="w-full py-3 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-semibold text-white transition-all duration-200 cursor-pointer shadow-lg shadow-primary/20"
-              >
-                Scale Your Store Now
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="py-12 border-t border-white/5 text-center text-xs text-gray-500">
