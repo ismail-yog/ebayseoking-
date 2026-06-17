@@ -196,7 +196,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
                 placeholder="Search synced listings..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2.5 pl-10 pr-4 text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200"
+                className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 rounded-lg py-2.5 pl-10 pr-4 text-sm placeholder:text-gray-600 outline-none transition-all duration-200"
               />
             </div>
 
@@ -205,25 +205,25 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
               <span className="text-xs text-gray-400 font-semibold">Select Pending:</span>
               <button
                 onClick={() => handleSelectCount("5")}
-                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer"
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 5
               </button>
               <button
                 onClick={() => handleSelectCount("10")}
-                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer"
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 10
               </button>
               <button
                 onClick={() => handleSelectCount("25")}
-                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer"
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 25
               </button>
               <button
                 onClick={() => handleSelectCount("all")}
-                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer"
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 All
               </button>

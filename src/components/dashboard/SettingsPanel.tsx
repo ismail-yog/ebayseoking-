@@ -58,7 +58,7 @@ export function SettingsPanel({ profile }: SettingsPanelProps) {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-semibold text-white transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-semibold text-white transition-all cursor-pointer disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f0e1f]"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{saving ? "Saving..." : "Save Settings"}</span>
@@ -87,7 +87,7 @@ export function SettingsPanel({ profile }: SettingsPanelProps) {
             </div>
             <button
               onClick={() => setIsAutopilot(!isAutopilot)}
-              className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none cursor-pointer ${
+              className={`w-12 h-6 rounded-full p-1 transition-all duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f0e1f] ${
                 isAutopilot ? "bg-primary" : "bg-white/10"
               }`}
             >
@@ -105,7 +105,7 @@ export function SettingsPanel({ profile }: SettingsPanelProps) {
             <select
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none focus:border-primary/50"
+              className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
             >
               <option value="US" className="bg-[#0f0e1f] text-gray-300">eBay United States (USD)</option>
               <option value="UK" className="bg-[#0f0e1f] text-gray-300">eBay United Kingdom (GBP)</option>
@@ -120,7 +120,7 @@ export function SettingsPanel({ profile }: SettingsPanelProps) {
             <select
               value={interval}
               onChange={(e) => setInterval(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none focus:border-primary/50"
+              className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
             >
               <option value="12h" className="bg-[#0f0e1f] text-gray-300">Twice Daily (Every 12 Hours)</option>
               <option value="24h" className="bg-[#0f0e1f] text-gray-300">Once Daily (Every 24 Hours)</option>

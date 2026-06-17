@@ -190,7 +190,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5"
+                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0915]"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -266,7 +266,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white font-medium py-2.5 rounded-lg text-sm transition-all duration-200 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white font-medium py-2.5 rounded-lg text-sm transition-all duration-200 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0915]"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -322,7 +322,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-accent-cyan to-primary hover:brightness-110 text-white font-medium py-2.5 rounded-lg text-sm transition-all duration-200 shadow-lg shadow-accent-cyan/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-accent-cyan to-primary hover:brightness-110 text-white font-medium py-2.5 rounded-lg text-sm transition-all duration-200 shadow-lg shadow-accent-cyan/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0915]"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
