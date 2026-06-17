@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const clientId = process.env.EBAY_CLIENT_ID || "placeholder-ebay-id";
   const ruName = process.env.EBAY_RU_NAME || "placeholder-runame";
   const isProd = process.env.EBAY_ENVIRONMENT === "production";
@@ -33,6 +33,10 @@ export async function GET() {
 
   const redirectUrl = `${authUrl}?${queryParams.toString()}`;
 
+  // Extract host to determine root domain (for www / non-www domain cookie sharing)
+  const host = request.headers.get("host") || "";
+  const domain = host.includes("syncsell.org") ? ".syncsell.org" : undefined;
+
   // Store state in a secure cookie to verify in callback (valid for 10 minutes)
   const cookieStore = await cookies();
   cookieStore.set("ebay_oauth_state", state, {
@@ -41,8 +45,9 @@ export async function GET() {
     sameSite: "lax",
     maxAge: 600, // 10 minutes
     path: "/",
+    domain: domain,
   });
 
-  console.log(`Initiating eBay Auth. Redirecting to: ${redirectUrl}`);
+  console.log(`Initiating eBay Auth. Redirecting to: ${redirectUrl} (Cookie Domain: ${domain || "default"})`);
   return NextResponse.redirect(redirectUrl);
 }
