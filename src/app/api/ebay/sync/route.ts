@@ -67,7 +67,17 @@ export async function POST() {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    let itemsToInsert = [];
+    interface EbayItem {
+      ebay_item_id: string;
+      title: string;
+      description: string;
+      price: number;
+      currency: string;
+      image_urls: string[];
+      status: string;
+    }
+
+    let itemsToInsert: EbayItem[] = [];
     let isLiveSync = false;
 
     if (credentials) {

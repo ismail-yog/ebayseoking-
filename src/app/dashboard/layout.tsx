@@ -16,6 +16,17 @@ async function logout() {
   redirect("/");
 }
 
+// Disconnect eBay store action inside dashboard shell
+async function disconnectEbay() {
+  "use server";
+  const supabase = await createClientServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await supabase.from("store_credentials").delete().eq("user_id", user.id);
+  }
+  redirect("/dashboard");
+}
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -161,9 +172,19 @@ export default async function DashboardLayout({
               <span>Connect eBay Store</span>
             </a>
           ) : (
-            <div className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/20 text-xs font-semibold text-green-400">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span className="truncate">Connected: {credentials?.ebay_store_name || "eBay"}</span>
+            <div className="space-y-2 w-full">
+              <div className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/20 text-xs font-semibold text-green-400">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span className="truncate">Connected: {credentials?.ebay_store_name || "eBay"}</span>
+              </div>
+              <form action={disconnectEbay} className="w-full">
+                <button
+                  type="submit"
+                  className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-[11px] font-semibold text-red-400 transition-all cursor-pointer"
+                >
+                  Disconnect eBay
+                </button>
+              </form>
             </div>
           )}
 

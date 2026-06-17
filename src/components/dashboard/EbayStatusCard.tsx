@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Zap, RefreshCw, AlertTriangle, CheckCircle2, Store } from "lucide-react";
+import { RefreshCw, AlertTriangle, CheckCircle2, Store } from "lucide-react";
 import { toast } from "sonner";
 
 interface EbayStatusCardProps {
@@ -20,11 +20,23 @@ export function EbayStatusCard({ isConnected, storeName, username }: EbayStatusC
       const res = await fetch("/api/ebay/sync", { method: "POST" });
       if (!res.ok) throw new Error("Sync request failed");
       toast.success("Active listing fetch queued successfully!");
-    } catch (err: unknown) {
+    } catch {
       // Graceful fallback simulation
       toast.info("Simulated listing sync complete: Active eBay items fetched!");
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (!confirm("Are you sure you want to disconnect your eBay account?")) return;
+    try {
+      const res = await fetch("/api/ebay/disconnect", { method: "POST" });
+      if (!res.ok) throw new Error("Disconnect request failed");
+      toast.success("Successfully disconnected eBay account!");
+      window.location.reload();
+    } catch {
+      toast.error("Failed to disconnect eBay account");
     }
   };
 
@@ -65,17 +77,25 @@ export function EbayStatusCard({ isConnected, storeName, username }: EbayStatusC
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="shrink-0 w-full sm:w-auto">
+        {/* Action Buttons */}
+        <div className="shrink-0 w-full sm:w-auto flex flex-col sm:flex-row gap-3">
           {isConnected && (
-            <button
-              onClick={handleSyncListings}
-              disabled={syncing}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-white transition-all cursor-pointer disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-              <span>Fetch Active Listings</span>
-            </button>
+            <>
+              <button
+                onClick={handleSyncListings}
+                disabled={syncing}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-white transition-all cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+                <span>Fetch Active Listings</span>
+              </button>
+              <button
+                onClick={handleDisconnect}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs font-semibold text-red-400 transition-all cursor-pointer"
+              >
+                <span>Disconnect eBay</span>
+              </button>
+            </>
           )}
         </div>
       </div>

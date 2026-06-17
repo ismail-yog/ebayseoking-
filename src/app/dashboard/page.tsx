@@ -4,7 +4,7 @@ import { createClientServer } from "@/lib/supabase/server";
 import { EbayStatusCard } from "@/components/dashboard/EbayStatusCard";
 import { BillingPanel } from "@/components/dashboard/BillingPanel";
 import { 
-  Sparkles, CheckCircle2, ShoppingBag, Clock, ShieldCheck, Settings 
+  Sparkles, CheckCircle2, ShoppingBag, Clock, Settings 
 } from "lucide-react";
 
 interface PageProps {
