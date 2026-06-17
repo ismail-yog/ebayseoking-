@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClientServer } from "@/lib/supabase/server";
+import { decryptCredentials } from "@/lib/encryption";
 
 // 5 premium mock items for testing listing optimization when no credentials exist
 const MOCK_EBAY_ITEMS = [
@@ -62,19 +63,104 @@ export async function POST() {
     // Check if store credentials exist
     const { data: credentials } = await supabase
       .from("store_credentials")
-      .select("id")
+      .select("encrypted_access_token, encrypted_refresh_token, iv, auth_tag")
       .eq("user_id", user.id)
       .maybeSingle();
 
     let itemsToInsert = [];
+    let isLiveSync = false;
 
     if (credentials) {
       console.log(`Store credentials found for user ${user.id}. Executing live eBay inventory fetch.`);
-      // In production, we'd query eBay Trading API GetMyeBaySelling here.
-      // For local testing, we'll populate realistic listings.
-      itemsToInsert = MOCK_EBAY_ITEMS;
-    } else {
-      console.log(`No store credentials found for user ${user.id}. Seeding mock active listings.`);
+      
+      try {
+        // 1. Decrypt eBay Access Token
+        const decrypted = decryptCredentials(
+          credentials.encrypted_access_token,
+          credentials.encrypted_refresh_token,
+          credentials.iv,
+          credentials.auth_tag
+        );
+        
+        const accessToken = decrypted.accessToken;
+        const clientId = process.env.EBAY_CLIENT_ID || "";
+        const clientSecret = process.env.EBAY_CLIENT_SECRET || "";
+        const isProd = process.env.EBAY_ENVIRONMENT === "production";
+        
+        const endpoint = isProd
+          ? "https://api.ebay.com/ws/api.dll"
+          : "https://api.sandbox.ebay.com/ws/api.dll";
+
+        // 2. Query eBay XML Trading API (GetMyeBaySelling)
+        const xmlBody = `<?xml version="1.0" encoding="utf-8"?>
+<GetMyeBaySellingRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+  <RequesterCredentials>
+    <eBayAuthToken>${accessToken}</eBayAuthToken>
+  </RequesterCredentials>
+  <ActiveList>
+    <Sort>TimeLeft</Sort>
+    <Pagination>
+      <EntriesPerPage>50</EntriesPerPage>
+      <PageNumber>1</PageNumber>
+    </Pagination>
+  </ActiveList>
+  <DetailLevel>ReturnAll</DetailLevel>
+</GetMyeBaySellingRequest>`;
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/xml",
+            "X-EBAY-API-SITEID": "0", // 0 is US site
+            "X-EBAY-API-COMPATIBILITY-LEVEL": "967",
+            "X-EBAY-API-CALL-NAME": "GetMyeBaySelling",
+            "X-EBAY-API-APP-NAME": clientId,
+            "X-EBAY-API-DEV-NAME": "",
+            "X-EBAY-API-CERT-NAME": clientSecret,
+          },
+          body: xmlBody,
+        });
+
+        if (response.ok) {
+          const xmlResponse = await response.text();
+          
+          // Regex-based lightweight XML parsing
+          const matches = xmlResponse.match(/<Item>([\s\S]*?)<\/Item>/g);
+          
+          if (matches && matches.length > 0) {
+            itemsToInsert = matches.map((itemXml) => {
+              const ebay_item_id = itemXml.match(/<ItemID>(.*?)<\/ItemID>/)?.[1] || "";
+              const title = itemXml.match(/<Title>(.*?)<\/Title>/)?.[1] || "";
+              const priceVal = itemXml.match(/<CurrentPrice[^>]*>(.*?)<\/CurrentPrice>/)?.[1] || "0.00";
+              const currency = itemXml.match(/<CurrentPrice currencyID="(.*?)">/)?.[1] || "USD";
+              const imageUrl = itemXml.match(/<GalleryURL>(.*?)<\/GalleryURL>/)?.[1] || "";
+
+              return {
+                ebay_item_id,
+                title,
+                description: "eBay active listing. Click Optimize to generate Claude SEO copy.",
+                price: parseFloat(priceVal) || 0.0,
+                currency,
+                image_urls: imageUrl ? [imageUrl] : [],
+                status: "Pending",
+              };
+            });
+            isLiveSync = true;
+            console.log(`Live synced ${itemsToInsert.length} active items from eBay.`);
+          } else {
+            console.warn("No active items returned from eBay GetMyeBaySelling. Falling back to mock data.");
+          }
+        } else {
+          console.error(`eBay API request failed: ${response.status}`);
+        }
+      } catch (syncErr) {
+        console.error("Error during live eBay listing sync:", syncErr);
+      }
+    }
+
+    // Fallback to mock items if live sync couldn't retrieve items
+    if (itemsToInsert.length === 0) {
+      console.log("Using default mock items for testing.");
       itemsToInsert = MOCK_EBAY_ITEMS;
     }
 
@@ -98,8 +184,8 @@ export async function POST() {
 
     if (upsertErr) throw upsertErr;
 
-    console.log(`Successfully synced ${listings.length} listings for user ${user.id}`);
-    return NextResponse.json({ success: true, count: listings.length });
+    console.log(`Successfully synced ${listings.length} listings (Live: ${isLiveSync}) for user ${user.id}`);
+    return NextResponse.json({ success: true, count: listings.length, live: isLiveSync });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Inventory sync failed";
     console.error(`Listing sync error: ${msg}`);
