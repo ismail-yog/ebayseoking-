@@ -127,6 +127,10 @@ export async function GET(req: Request) {
           iv: encrypted.iv,
           auth_tag: encrypted.authTag,
           updated_at: new Date().toISOString(),
+          platform: "ebay",
+          store_url: "ebay.com",
+          store_name: ebayStoreName,
+          is_active: true,
         },
         { onConflict: "user_id" }
       );
@@ -139,8 +143,10 @@ export async function GET(req: Request) {
     const origin = new URL(req.url).origin;
     return NextResponse.redirect(`${origin}/dashboard`);
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Internal token exchange error";
-    console.error(`eBay Callback Error: ${msg}`);
+    const msg = (err && typeof err === "object" && "message" in err)
+      ? (err as { message: string }).message
+      : (err instanceof Error ? err.message : "Internal token exchange error");
+    console.error("eBay Callback Error:", err);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
