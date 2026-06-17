@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { createClientServer } from "@/lib/supabase/server";
 import { EbayStatusCard } from "@/components/dashboard/EbayStatusCard";
 import { BillingPanel } from "@/components/dashboard/BillingPanel";
+import { SettingsPanel } from "@/components/dashboard/SettingsPanel";
 import { 
-  Sparkles, CheckCircle2, ShoppingBag, Clock, Settings 
+  Sparkles, CheckCircle2, ShoppingBag, Clock 
 } from "lucide-react";
 
 interface PageProps {
@@ -20,18 +21,26 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     redirect("/");
   }
 
-  // Fetch user profile details for stats & billing
+  // Fetch user profile details for stats, settings & billing
   const { data: profile } = await supabase
     .from("users")
-    .select("plan_type, optimization_limit, optimizations_used, plan_expires_at")
+    .select("plan_type, optimization_limit, optimizations_used, plan_expires_at, is_autopilot_enabled, marketplace_region, sync_interval")
     .eq("id", user.id)
     .single();
 
-  const activeProfile = profile || {
+  const activeProfile = profile ? {
+    ...profile,
+    is_autopilot_enabled: !!profile.is_autopilot_enabled,
+    marketplace_region: profile.marketplace_region || "US",
+    sync_interval: profile.sync_interval || "24h",
+  } : {
     plan_type: "free",
     optimization_limit: 10,
     optimizations_used: 0,
     plan_expires_at: null,
+    is_autopilot_enabled: false,
+    marketplace_region: "US",
+    sync_interval: "24h",
   };
 
   // Render Billing Tab Panel
@@ -41,68 +50,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   // Render Settings Tab Panel
   if (tab === "settings") {
-    return (
-      <div className="space-y-6 max-w-2xl">
-        {/* General Settings */}
-        <div className="glass rounded-xl p-8 border border-white/5 space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 text-gray-300">
-              <Settings className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold font-heading text-white">General Settings</h2>
-              <p className="text-xs text-gray-400">Configure your store configuration and synchronization frequencies.</p>
-            </div>
-          </div>
-
-          <div className="border-t border-white/5 pt-6 space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-400">Marketplace Region</label>
-              <select className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none">
-                <option value="US">eBay United States (USD)</option>
-                <option value="UK">eBay United Kingdom (GBP)</option>
-                <option value="DE">eBay Germany (EUR)</option>
-                <option value="CA">eBay Canada (CAD)</option>
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-400">Sync Interval</label>
-              <select className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none">
-                <option value="12h">Twice Daily (Every 12 Hours)</option>
-                <option value="24h">Once Daily (Every 24 Hours)</option>
-                <option value="manual">Manual Pull Only</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* System Status (Moved from Overview) */}
-        <div className="glass rounded-xl p-6 border border-white/5 space-y-4">
-          <h3 className="text-base font-bold font-heading text-white">System Status</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
-              <span className="text-gray-400">Claude 3.5 API</span>
-              <span className="text-green-400 font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Operational
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
-              <span className="text-gray-400">Upstash QStash</span>
-              <span className="text-green-400 font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Operational
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-400">eBay Trading API</span>
-              <span className="text-green-400 font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Connected
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <SettingsPanel profile={activeProfile} />;
   }
 
   // Fetch eBay credentials status

@@ -68,6 +68,13 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
     setExpandedListingId((prev) => (prev === id ? null : id));
   };
 
+  const handleSelectCount = (countStr: string) => {
+    const pendingListings = filteredListings.filter((l) => l.status === "Pending");
+    const count = countStr === "all" ? pendingListings.length : parseInt(countStr) || 0;
+    const idsToSelect = pendingListings.slice(0, count).map((l) => l.id);
+    setSelectedIds(idsToSelect);
+  };
+
   const handleBatchOptimize = async () => {
     const selectedCount = selectedIds.length;
     const remainingCredits = credits.optimization_limit - credits.optimizations_used;
@@ -120,6 +127,11 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
     }
   };
 
+  const pendingCount = listings.filter((l) => l.status === "Pending").length;
+  const inProgressCount = listings.filter((l) => l.status === "In Progress" || l.status === "Pending Queue").length;
+  const optimizedCount = listings.filter((l) => l.status === "Optimized").length;
+  const failedCount = listings.filter((l) => l.status === "Failed").length;
+
   return (
     <div className="space-y-6 max-w-6xl relative pb-24">
       {/* Header Info */}
@@ -137,6 +149,28 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
         </div>
       </div>
 
+      {listings.length > 0 && (
+        /* Stats Overview Grid */
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="glass rounded-xl p-4 border border-white/5 relative overflow-hidden">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Pending Optimization</p>
+            <h3 className="text-xl font-bold text-white mt-1">{pendingCount}</h3>
+          </div>
+          <div className="glass rounded-xl p-4 border border-white/5 relative overflow-hidden">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">In Progress / Queue</p>
+            <h3 className="text-xl font-bold text-primary mt-1">{inProgressCount}</h3>
+          </div>
+          <div className="glass rounded-xl p-4 border border-white/5 relative overflow-hidden">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Optimized & Synced</p>
+            <h3 className="text-xl font-bold text-green-400 mt-1">{optimizedCount}</h3>
+          </div>
+          <div className="glass rounded-xl p-4 border border-white/5 relative overflow-hidden">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Failed / Issues</p>
+            <h3 className="text-xl font-bold text-red-400 mt-1">{failedCount}</h3>
+          </div>
+        </div>
+      )}
+
       {listings.length === 0 ? (
         /* Empty State */
         <div className="glass rounded-xl p-12 text-center border border-white/5 space-y-6 max-w-xl mx-auto my-12">
@@ -153,16 +187,47 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
       ) : (
         /* Data Table & Controls */
         <div className="space-y-4">
-          {/* Search bar */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3.5 top-3 w-4 h-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search synced listings..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2.5 pl-10 pr-4 text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200"
-            />
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            {/* Search bar */}
+            <div className="relative max-w-md w-full">
+              <Search className="absolute left-3.5 top-3 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search synced listings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2.5 pl-10 pr-4 text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200"
+              />
+            </div>
+
+            {/* Quick selector */}
+            <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5">
+              <span className="text-xs text-gray-400 font-semibold">Select Pending:</span>
+              <button
+                onClick={() => handleSelectCount("5")}
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer"
+              >
+                5
+              </button>
+              <button
+                onClick={() => handleSelectCount("10")}
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer"
+              >
+                10
+              </button>
+              <button
+                onClick={() => handleSelectCount("25")}
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer"
+              >
+                25
+              </button>
+              <button
+                onClick={() => handleSelectCount("all")}
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-semibold text-white transition-all cursor-pointer"
+              >
+                All
+              </button>
+            </div>
           </div>
 
           {/* Table Card */}
