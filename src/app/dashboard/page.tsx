@@ -20,9 +20,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     redirect("/");
   }
 
-  // Fetch profile details for stats & billing
+  // Fetch user profile details for stats & billing
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("users")
     .select("plan_type, optimization_limit, optimizations_used, plan_expires_at")
     .eq("id", user.id)
     .single();

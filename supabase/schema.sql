@@ -1,30 +1,37 @@
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
--- 1. Profiles Table (extending Supabase Auth user)
-create table if not exists public.profiles (
+-- 1. Users Table (extending Supabase Auth user)
+create table if not exists public.users (
     id uuid references auth.users on delete cascade primary key,
-    email text not null,
+    email text not null unique,
     full_name text,
     avatar_url text,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+    subscription_tier text default 'free' check (subscription_tier in ('free', 'pro', 'enterprise')),
+    created_at timestamp with time zone default now() not null,
+    updated_at timestamp with time zone default now() not null,
+    plan_type text default 'free' check (plan_type in ('free', 'basic', 'pro', 'business', 'enterprise')),
+    optimization_limit integer default 10,
+    optimizations_used integer default 0,
+    plan_expires_at timestamp with time zone,
+    stripe_customer_id text,
+    stripe_subscription_id text
 );
 
--- RLS for Profiles
-alter table public.profiles enable row level security;
+-- RLS for Users
+alter table public.users enable row level security;
 
-create policy "Users can view their own profile" on public.profiles
+create policy "Users can view their own record" on public.users
     for select using (auth.uid() = id);
 
-create policy "Users can update their own profile" on public.profiles
+create policy "Users can update their own record" on public.users
     for update using (auth.uid() = id);
 
--- Trigger to automatically create profile on sign up
+-- Trigger to automatically create user on sign up
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, email, full_name, avatar_url)
+  insert into public.users (id, email, full_name, avatar_url)
   values (
     new.id,
     new.email,

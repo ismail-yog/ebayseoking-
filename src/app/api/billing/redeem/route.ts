@@ -66,7 +66,7 @@ export async function POST(req: Request) {
 
     // 4. Upgrade user profile
     const { error: profileUpdateErr } = await supabaseAdmin
-      .from("profiles")
+      .from("users")
       .update({
         plan_type: promo.plan_type,
         optimization_limit: limit,

@@ -20,9 +20,9 @@ export async function GET() {
 
     if (optimizedErr) throw optimizedErr;
 
-    // Query actual profiles count
+    // Query actual users count
     const { count: usersCount, error: usersErr } = await supabase
-      .from("profiles")
+      .from("users")
       .select("*", { count: "exact", head: true });
 
     if (usersErr) throw usersErr;

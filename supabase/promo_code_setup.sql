@@ -1,6 +1,6 @@
 -- promo_code_setup.sql
--- 1. Add expiration date tracking to user profiles
-alter table public.profiles 
+-- 1. Add expiration date tracking to user records
+alter table public.users 
 add column if not exists plan_expires_at timestamp with time zone;
 
 -- 2. Create Promo Codes Table

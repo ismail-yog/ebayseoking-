@@ -22,15 +22,15 @@ export async function POST(req: Request) {
 
     const selectedCount = listingIds.length;
 
-    // Fetch profile to validate credits
+    // Fetch user to validate credits
     const { data: profile, error: profileErr } = await supabase
-      .from("profiles")
+      .from("users")
       .select("optimizations_used, optimization_limit")
       .eq("id", user.id)
       .single();
 
     if (profileErr || !profile) {
-      return NextResponse.json({ error: "User profile not found" }, { status: 404 });
+      return NextResponse.json({ error: "User record not found" }, { status: 404 });
     }
 
     const remainingCredits = profile.optimization_limit - profile.optimizations_used;
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 
     // Increment optimizations_used in Supabase atomically
     const { error: updateErr } = await supabase
-      .from("profiles")
+      .from("users")
       .update({
         optimizations_used: profile.optimizations_used + selectedCount,
         updated_at: new Date().toISOString(),

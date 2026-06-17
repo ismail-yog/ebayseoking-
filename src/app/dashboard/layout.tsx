@@ -31,7 +31,7 @@ export default async function DashboardLayout({
 
   // Fetch user profile stats
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("users")
     .select("full_name, email, plan_type, optimization_limit, optimizations_used, plan_expires_at")
     .eq("id", user.id)
     .single();
@@ -52,7 +52,7 @@ export default async function DashboardLayout({
       console.log(`Plan expired for user ${user.id}. Executing auto-downgrade to Free.`);
       
       await supabase
-        .from("profiles")
+        .from("users")
         .update({
           plan_type: "free",
           optimization_limit: 10,

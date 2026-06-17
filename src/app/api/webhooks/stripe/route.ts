@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         }
 
         const { error } = await supabase
-          .from("profiles")
+          .from("users")
           .update({
             stripe_customer_id: customerId,
             stripe_subscription_id: subscriptionId,
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
         const limit = PLAN_LIMITS[planType] || 10;
 
         const { error } = await supabase
-          .from("profiles")
+          .from("users")
           .update({
             plan_type: planType,
             optimization_limit: limit,
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
         const customerId = subscription.customer as string;
 
         const { error } = await supabase
-          .from("profiles")
+          .from("users")
           .update({
             stripe_subscription_id: null,
             plan_type: "free",

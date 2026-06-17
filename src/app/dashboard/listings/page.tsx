@@ -18,9 +18,9 @@ export default async function ListingsPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  // Fetch profile to validate credits limits
+  // Fetch user profile to validate credits limits
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("users")
     .select("optimizations_used, optimization_limit")
     .eq("id", user.id)
     .single();
