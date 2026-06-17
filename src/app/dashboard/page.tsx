@@ -42,35 +42,63 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   // Render Settings Tab Panel
   if (tab === "settings") {
     return (
-      <div className="glass rounded-xl p-8 border border-white/5 space-y-6 max-w-2xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 text-gray-300">
-            <Settings className="w-5 h-5" />
+      <div className="space-y-6 max-w-2xl">
+        {/* General Settings */}
+        <div className="glass rounded-xl p-8 border border-white/5 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 text-gray-300">
+              <Settings className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold font-heading text-white">General Settings</h2>
+              <p className="text-xs text-gray-400">Configure your store configuration and synchronization frequencies.</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold font-heading text-white">General Settings</h2>
-            <p className="text-xs text-gray-400">Configure your store configuration and synchronization frequencies.</p>
+
+          <div className="border-t border-white/5 pt-6 space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-gray-400">Marketplace Region</label>
+              <select className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none">
+                <option value="US">eBay United States (USD)</option>
+                <option value="UK">eBay United Kingdom (GBP)</option>
+                <option value="DE">eBay Germany (EUR)</option>
+                <option value="CA">eBay Canada (CAD)</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-gray-400">Sync Interval</label>
+              <select className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none">
+                <option value="12h">Twice Daily (Every 12 Hours)</option>
+                <option value="24h">Once Daily (Every 24 Hours)</option>
+                <option value="manual">Manual Pull Only</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-white/5 pt-6 space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-400">Marketplace Region</label>
-            <select className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none">
-              <option value="US">eBay United States (USD)</option>
-              <option value="UK">eBay United Kingdom (GBP)</option>
-              <option value="DE">eBay Germany (EUR)</option>
-              <option value="CA">eBay Canada (CAD)</option>
-            </select>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-400">Sync Interval</label>
-            <select className="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-sm text-gray-300 focus:outline-none">
-              <option value="12h">Twice Daily (Every 12 Hours)</option>
-              <option value="24h">Once Daily (Every 24 Hours)</option>
-              <option value="manual">Manual Pull Only</option>
-            </select>
+        {/* System Status (Moved from Overview) */}
+        <div className="glass rounded-xl p-6 border border-white/5 space-y-4">
+          <h3 className="text-base font-bold font-heading text-white">System Status</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
+              <span className="text-gray-400">Claude 3.5 API</span>
+              <span className="text-green-400 font-semibold flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Operational
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
+              <span className="text-gray-400">Upstash QStash</span>
+              <span className="text-green-400 font-semibold flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Operational
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-400">eBay Trading API</span>
+              <span className="text-green-400 font-semibold flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Connected
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -155,7 +183,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       {/* Activity Grid / Tips */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tips / Guidelines */}
-        <div className="lg:col-span-2 glass rounded-xl p-6 border border-white/5 space-y-4">
+        <div className="lg:col-span-3 glass rounded-xl p-6 border border-white/5 space-y-4">
           <h3 className="text-base font-bold font-heading text-white flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-secondary" />
             <span>AI Optimization Tips for eBay Cassini Rank</span>
@@ -168,31 +196,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             <div className="p-3 bg-white/5 rounded-lg border border-white/5">
               <p className="font-semibold text-gray-200">2. Enhance Descriptions with Structured HTML</p>
               <p className="mt-1">SyncSell generates clean, mobile-responsive layout descriptions. Structured text satisfies Cassini readability algorithm scans.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* System Activity */}
-        <div className="glass rounded-xl p-6 border border-white/5 space-y-4">
-          <h3 className="text-base font-bold font-heading text-white">System Status</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
-              <span className="text-gray-400">Claude 3.5 API</span>
-              <span className="text-green-400 font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Operational
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
-              <span className="text-gray-400">Upstash QStash</span>
-              <span className="text-green-400 font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Operational
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-400">eBay Trading API</span>
-              <span className="text-green-400 font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Connected
-              </span>
             </div>
           </div>
         </div>

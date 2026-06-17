@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createClientServer } from "@/lib/supabase/server";
 import { 
   LayoutDashboard, ShoppingBag, CreditCard, Settings, LogOut, 
-  ShieldCheck, Zap 
+  ShieldCheck, Zap, CheckCircle2
 } from "lucide-react";
 import { CreditCounter } from "@/components/dashboard/CreditCounter";
 
@@ -44,6 +44,15 @@ export default async function DashboardLayout({
     optimizations_used: 0,
     plan_expires_at: null,
   };
+
+  // Fetch eBay credentials status
+  const { data: credentials } = await supabase
+    .from("store_credentials")
+    .select("ebay_store_name")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const isConnected = !!credentials;
 
   // Perform dynamic auto-expiry verification check
   if (profile && profile.plan_type !== "free" && profile.plan_expires_at) {
@@ -87,6 +96,28 @@ export default async function DashboardLayout({
           </Link>
         </div>
 
+        {/* Profile Section & Credits (Moved to Top) */}
+        <div className="p-4.5 border-b border-white/5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-accent-magenta flex items-center justify-center font-bold text-sm text-white shrink-0">
+              {activeProfile.full_name.substring(0, 2).toUpperCase()}
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-sm font-semibold truncate text-white">
+                {activeProfile.full_name}
+              </p>
+              <p className="text-xs text-gray-400 truncate">
+                {activeProfile.email}
+              </p>
+            </div>
+          </div>
+          <CreditCounter 
+            used={activeProfile.optimizations_used} 
+            limit={activeProfile.optimization_limit} 
+            plan={activeProfile.plan_type} 
+          />
+        </div>
+
         {/* Navigation Items */}
         <nav className="flex-1 py-6 px-4 space-y-1">
           <Link 
@@ -119,39 +150,32 @@ export default async function DashboardLayout({
           </Link>
         </nav>
 
-        {/* User Card & Credit Widget */}
-        <div className="p-4 border-t border-white/5 space-y-4">
-          <CreditCounter 
-            used={activeProfile.optimizations_used} 
-            limit={activeProfile.optimization_limit} 
-            plan={activeProfile.plan_type} 
-          />
-
-          <div className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
-            <div className="flex items-center gap-2 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-accent-magenta flex items-center justify-center font-bold text-xs text-white shrink-0">
-                {activeProfile.full_name.substring(0, 2).toUpperCase()}
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-xs font-semibold truncate text-white">
-                  {activeProfile.full_name}
-                </p>
-                <p className="text-[10px] text-gray-400 truncate">
-                  {activeProfile.email}
-                </p>
-              </div>
+        {/* Sidebar Footer (Connect eBay & Sign Out - Moved to Bottom) */}
+        <div className="p-4 border-t border-white/5 space-y-3 mt-auto">
+          {!isConnected ? (
+            <a 
+              href="/api/ebay/auth"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-semibold text-white shadow-lg shadow-primary/20 transition-all text-center cursor-pointer"
+            >
+              <Zap className="w-3.5 h-3.5 fill-white/10" />
+              <span>Connect eBay Store</span>
+            </a>
+          ) : (
+            <div className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/20 text-xs font-semibold text-green-400">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span className="truncate">Connected: {credentials?.ebay_store_name || "eBay"}</span>
             </div>
+          )}
 
-            <form action={logout}>
-              <button 
-                type="submit" 
-                className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors bg-transparent border-0 cursor-pointer"
-                title="Logout"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </form>
-          </div>
+          <form action={logout} className="w-full">
+            <button 
+              type="submit" 
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/20 text-xs font-semibold text-gray-300 hover:text-red-400 transition-all cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
+          </form>
         </div>
       </aside>
 

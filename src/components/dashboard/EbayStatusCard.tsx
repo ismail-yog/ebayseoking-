@@ -67,7 +67,7 @@ export function EbayStatusCard({ isConnected, storeName, username }: EbayStatusC
 
         {/* Action Button */}
         <div className="shrink-0 w-full sm:w-auto">
-          {isConnected ? (
+          {isConnected && (
             <button
               onClick={handleSyncListings}
               disabled={syncing}
@@ -76,14 +76,6 @@ export function EbayStatusCard({ isConnected, storeName, username }: EbayStatusC
               <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
               <span>Fetch Active Listings</span>
             </button>
-          ) : (
-            <a
-              href="/api/ebay/auth"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 text-center cursor-pointer"
-            >
-              <Zap className="w-4 h-4 fill-white/10" />
-              <span>Connect eBay Store</span>
-            </a>
           )}
         </div>
       </div>
