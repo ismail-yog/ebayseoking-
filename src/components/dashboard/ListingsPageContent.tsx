@@ -211,6 +211,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
                           </td>
                           <td className="p-4">
                             {listing.image_urls && listing.image_urls.length > 0 ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
                               <img
                                 src={listing.image_urls[0]}
                                 alt={listing.title}

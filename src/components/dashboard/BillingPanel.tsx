@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Sparkles, CheckCircle2, Ticket, ShieldAlert, CreditCard, 
-  ArrowRight, Landmark, PhoneCall, HelpCircle, Calendar, ShieldCheck 
+  CheckCircle2, Ticket, ArrowRight, Landmark, PhoneCall, HelpCircle, ShieldCheck 
 } from "lucide-react";
 import { toast } from "sonner";
 
