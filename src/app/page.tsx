@@ -13,9 +13,9 @@ export default function LandingPage() {
   const [authModalTab, setAuthModalTab] = useState<"login" | "signup" | "otp">("login");
   const [scrolled, setScrolled] = useState(false);
   const [stats, setStats] = useState({
-    listingsSynced: "12,840",
-    listingsOptimized: "9,420",
-    usersCount: "342",
+    listingsSynced: "0",
+    listingsOptimized: "0",
+    usersCount: "0",
   });
 
   useEffect(() => {

@@ -2,55 +2,6 @@ import { NextResponse } from "next/server";
 import { createClientServer } from "@/lib/supabase/server";
 import { decryptCredentials } from "@/lib/encryption";
 
-// 5 premium mock items for testing listing optimization when no credentials exist
-const MOCK_EBAY_ITEMS = [
-  {
-    ebay_item_id: "275918304910",
-    title: "Apple iPhone 13 Pro Max - 128GB - Graphite - Unlocked (Good Condition)",
-    description: "This is a seller-refurbished Apple iPhone 13 Pro Max with 128GB storage in Graphite. Fully functional, unlocked, with minor cosmetic wear. Ships free with a charger!",
-    price: 649.99,
-    currency: "USD",
-    image_urls: ["https://images.unsplash.com/photo-1632661676897-8f1135b00dbd?w=350&auto=format&fit=crop&q=80"],
-    status: "Pending",
-  },
-  {
-    ebay_item_id: "385109384729",
-    title: "Sony WH-1000XM4 Wireless Noise Cancelling Over-the-Ear Headphones - Black",
-    description: "Premium Sony WH-1000XM4 Bluetooth headphones. Active noise cancelling, excellent battery life, includes original carrying case and USB-C audio cables.",
-    price: 229.00,
-    currency: "USD",
-    image_urls: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=350&auto=format&fit=crop&q=80"],
-    status: "Pending",
-  },
-  {
-    ebay_item_id: "155829104928",
-    title: "Nintendo Switch OLED Model 64GB Console - Neon Red & Blue (Used)",
-    description: "Gently used Nintendo Switch OLED model with 64GB internal storage. Complete with docking station, neon Joy-Cons, controller grip, and power cables.",
-    price: 289.99,
-    currency: "USD",
-    image_urls: ["https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=350&auto=format&fit=crop&q=80"],
-    status: "Pending",
-  },
-  {
-    ebay_item_id: "225102948172",
-    title: "Nike Air Jordan 1 Retro High OG Chicago Lost and Found - Size 10",
-    description: "Collector edition Air Jordan 1 Retro High in the iconic Chicago colorway. Brand new in box (DS), includes original receipt. 100% authentic guaranteed.",
-    price: 349.00,
-    currency: "USD",
-    image_urls: ["https://images.unsplash.com/photo-1552346154-21d32810aba3?w=350&auto=format&fit=crop&q=80"],
-    status: "Pending",
-  },
-  {
-    ebay_item_id: "195829104820",
-    title: "Apple Watch Series 8 GPS 41mm Midnight Aluminum Case - Sport Band",
-    description: "Apple Watch Series 8 GPS in Midnight Aluminum. 41mm screen size, battery health at 96%, original box and charging puck included. No scratches on screen.",
-    price: 249.99,
-    currency: "USD",
-    image_urls: ["https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=350&auto=format&fit=crop&q=80"],
-    status: "Pending",
-  },
-];
-
 export async function POST() {
   try {
     const supabase = await createClientServer();
@@ -66,6 +17,13 @@ export async function POST() {
       .select("encrypted_access_token, encrypted_refresh_token, iv, auth_tag")
       .eq("user_id", user.id)
       .maybeSingle();
+
+    if (!credentials) {
+      return NextResponse.json(
+        { error: "No eBay store connected. Please connect your eBay store first." },
+        { status: 400 }
+      );
+    }
 
     interface EbayItem {
       ebay_item_id: string;
@@ -158,7 +116,7 @@ export async function POST() {
             isLiveSync = true;
             console.log(`Live synced ${itemsToInsert.length} active items from eBay.`);
           } else {
-            console.warn("No active items returned from eBay GetMyeBaySelling. Falling back to mock data.");
+            console.warn("No active items returned from eBay GetMyeBaySelling.");
           }
         } else {
           console.error(`eBay API request failed: ${response.status}`);
@@ -168,10 +126,10 @@ export async function POST() {
       }
     }
 
-    // Fallback to mock items if live sync couldn't retrieve items
+    // If no active items were fetched, return success with count 0
     if (itemsToInsert.length === 0) {
-      console.log("Using default mock items for testing.");
-      itemsToInsert = MOCK_EBAY_ITEMS;
+      console.log("No listings found to sync.");
+      return NextResponse.json({ success: true, count: 0, live: isLiveSync });
     }
 
     // Format items with user_id

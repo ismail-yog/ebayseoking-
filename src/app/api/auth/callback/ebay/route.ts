@@ -78,9 +78,40 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized. Please log in first." }, { status: 401 });
     }
 
-    // Attempt to query eBay API or mock store information
-    const ebayUsername = "eBay Seller Account";
-    const ebayStoreName = "My SyncSell Store";
+    // Fetch real store information from the eBay Identity API
+    let ebayUsername = "eBay Merchant";
+    let ebayStoreName = "My Store";
+
+    try {
+      const identityUrl = isProd
+        ? "https://apiz.ebay.com/commerce/identity/v1/user/"
+        : "https://apiz.sandbox.ebay.com/commerce/identity/v1/user/";
+
+      const idRes = await fetch(identityUrl, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (idRes.ok) {
+        const idData = await idRes.json();
+        ebayUsername = idData.username || "eBay Merchant";
+        
+        if (idData.businessAccount?.name) {
+          ebayStoreName = idData.businessAccount.name;
+        } else if (idData.individualAccount?.firstName) {
+          ebayStoreName = `${idData.individualAccount.firstName}'s eBay Store`;
+        } else {
+          ebayStoreName = `${ebayUsername}'s Store`;
+        }
+      } else {
+        const idErrText = await idRes.text();
+        console.error(`Failed to fetch eBay user identity: ${idRes.status} - ${idErrText}`);
+      }
+    } catch (idErr) {
+      console.error("Error fetching eBay user identity:", idErr);
+    }
 
     const { error: upsertErr } = await supabase
       .from("store_credentials")

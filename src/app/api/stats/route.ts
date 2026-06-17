@@ -27,10 +27,10 @@ export async function GET() {
 
     if (usersErr) throw usersErr;
 
-    // Combine database records with realistic baseline counts for landing page
-    const actualSynced = (syncedCount || 0) + 12840;
-    const actualOptimized = (optimizedCount || 0) + 9420;
-    const actualUsers = (usersCount || 0) + 342;
+    // Return only actual database records
+    const actualSynced = syncedCount || 0;
+    const actualOptimized = optimizedCount || 0;
+    const actualUsers = usersCount || 0;
 
     return NextResponse.json({
       listingsSynced: actualSynced.toLocaleString(),
@@ -39,13 +39,8 @@ export async function GET() {
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Database lookup failed";
-    console.error(`Stats lookup error: ${msg}. Serving fallback stats.`);
+    console.error(`Stats lookup error: ${msg}`);
     
-    // Fallback safe values in case Supabase is offline
-    return NextResponse.json({
-      listingsSynced: "12,840",
-      listingsOptimized: "9,420",
-      usersCount: "342",
-    });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

@@ -8,13 +8,11 @@ export async function reviseEbayFixedPriceItem(
   description: string,
   accessToken: string
 ): Promise<{ success: boolean; error?: string }> {
-  // If access token is a placeholder, simulate success
-  if (!accessToken || accessToken === "placeholder-token" || accessToken.startsWith("placeholder")) {
-    console.warn(`[DEV] Mocking eBay API ReviseFixedPriceItem for Item ID: ${itemId}`);
-    return { success: true };
+  if (!accessToken) {
+    return { success: false, error: "Access token is missing" };
   }
 
-  const isSandbox = process.env.EBAY_ENVIRONMENT === "sandbox" || true;
+  const isSandbox = process.env.EBAY_ENVIRONMENT === "sandbox";
   const endpoint = isSandbox
     ? "https://api.sandbox.ebay.com/ws/api.dll"
     : "https://api.ebay.com/ws/api.dll";

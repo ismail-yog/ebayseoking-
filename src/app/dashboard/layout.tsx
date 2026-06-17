@@ -27,31 +27,6 @@ async function disconnectEbay() {
   redirect("/dashboard");
 }
 
-// Simulate eBay store connection action inside dashboard shell
-async function simulateConnectEbay() {
-  "use server";
-  const supabase = await createClientServer();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    await supabase.from("store_credentials").upsert({
-      user_id: user.id,
-      platform: "ebay",
-      store_url: "ebay.com",
-      store_name: "Mock eBay Store",
-      ebay_store_name: "Mock eBay Store",
-      ebay_username: "MockSeller",
-      encrypted_access_token: "mock-access-token",
-      encrypted_refresh_token: "mock-refresh-token",
-      token_expires_at: new Date(Date.now() + 3600 * 1000).toISOString(),
-      refresh_token_expires_at: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
-      iv: "mock-iv",
-      auth_tag: "mock-auth-tag",
-      is_active: true,
-    }, { onConflict: "user_id" });
-  }
-  redirect("/dashboard");
-}
-
 
 export default async function DashboardLayout({
   children,
@@ -190,23 +165,13 @@ export default async function DashboardLayout({
         {/* Sidebar Footer (Connect eBay & Sign Out - Moved to Bottom) */}
         <div className="p-4 border-t border-white/5 space-y-3 mt-auto">
           {!isConnected ? (
-            <div className="space-y-2 w-full">
-              <a 
-                href="/api/ebay/auth"
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-semibold text-white shadow-lg shadow-primary/20 transition-all text-center cursor-pointer"
-              >
-                <Zap className="w-3.5 h-3.5 fill-white/10" />
-                <span>Connect eBay Store</span>
-              </a>
-              <form action={simulateConnectEbay} className="w-full">
-                <button
-                  type="submit"
-                  className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-semibold text-gray-300 transition-all cursor-pointer"
-                >
-                  Simulate eBay Connection (Test)
-                </button>
-              </form>
-            </div>
+            <a 
+              href="/api/ebay/auth"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-semibold text-white shadow-lg shadow-primary/20 transition-all text-center cursor-pointer"
+            >
+              <Zap className="w-3.5 h-3.5 fill-white/10" />
+              <span>Connect eBay Store</span>
+            </a>
           ) : (
             <div className="space-y-2 w-full">
               <div className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/20 text-xs font-semibold text-green-400">

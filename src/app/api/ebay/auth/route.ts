@@ -14,12 +14,12 @@ export async function GET(request: NextRequest) {
   // Generate a cryptographically secure random state (CSRF token)
   const state = crypto.randomBytes(16).toString("hex");
 
-  // Define required eBay scopes (space-separated)
   const scopes = [
     "https://api.ebay.com/oauth/api_scope",
     "https://api.ebay.com/oauth/api_scope/sell.inventory",
     "https://api.ebay.com/oauth/api_scope/sell.marketing",
     "https://api.ebay.com/oauth/api_scope/sell.account",
+    "https://api.ebay.com/oauth/api_scope/commerce.identity.readonly",
   ].join(" ");
 
   // Build the consent redirect URL
