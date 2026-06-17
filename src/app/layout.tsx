@@ -17,11 +17,11 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "SyncSell | Automate & AI-Optimize Your eBay Store",
-  description: "Rank higher and maximize sales on eBay using Claude 3.5 Sonnet to automatically optimize your titles, descriptions, and keywords. Scale your eBay empire in real-time.",
+  description: "Rank higher and maximize sales on eBay using Claude 4.6 Sonnet to automatically optimize your titles, descriptions, and keywords. Scale your eBay empire in real-time.",
   metadataBase: new URL("https://syncsell.ai"),
   openGraph: {
     title: "SyncSell | Automate & AI-Optimize Your eBay Store",
-    description: "Rank higher and maximize sales on eBay using Claude 3.5 Sonnet to automatically optimize your listings.",
+    description: "Rank higher and maximize sales on eBay using Claude 4.6 Sonnet to automatically optimize your listings.",
     url: "https://syncsell.ai",
     siteName: "SyncSell",
     locale: "en_US",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "SyncSell | AI-Optimized eBay Listings",
-    description: "Rank higher and maximize sales on eBay using Claude 3.5 Sonnet.",
+    description: "Rank higher and maximize sales on eBay using Claude 4.6 Sonnet.",
   },
 };
 

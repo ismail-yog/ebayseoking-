@@ -115,7 +115,7 @@ export default function LandingPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-base md:text-lg text-gray-400 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
             >
-              Rank higher, attract buyers, and skyrocket sales. SyncSell automatically fetches your active listings, rewrites them using Claude 3.5 Sonnet, and syncs updates to eBay in real-time.
+              Rank higher, attract buyers, and skyrocket sales. SyncSell automatically fetches your active listings, rewrites them using Claude 4.6 Sonnet, and syncs updates to eBay in real-time.
             </motion.p>
 
             <motion.div 
@@ -175,7 +175,7 @@ export default function LandingPage() {
                 <div className="w-full border-t border-dashed border-white/10" />
                 <div className="absolute bg-[#111025] px-4 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
                   <RefreshCw className="w-3.5 h-3.5 text-secondary animate-spin" />
-                  <span className="text-[10px] font-semibold text-gray-300">Claude 3.5 Sonnet Rewriting...</span>
+                  <span className="text-[10px] font-semibold text-gray-300">Claude 4.6 Sonnet Rewriting...</span>
                 </div>
               </div>
 
@@ -232,7 +232,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-lg font-bold font-heading mb-2 text-white">AI Title Optimizer</h3>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Claude 3.5 Sonnet scans eBay search patterns, analyzes competitors, and structures your product titles for peak visibility and conversion.
+                Claude 4.6 Sonnet scans eBay search patterns, analyzes competitors, and structures your product titles for peak visibility and conversion.
               </p>
             </div>
 

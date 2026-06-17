@@ -1,5 +1,5 @@
 /**
- * Calls Anthropic API (Claude 3.5 Sonnet) to optimize an eBay product listing.
+ * Calls Anthropic API (Claude 4.6 Sonnet) to optimize an eBay product listing.
  * Front-loads keywords for search ranking and generates structured HTML description.
  */
 export async function optimizeListingWithAI(title: string, description: string): Promise<{

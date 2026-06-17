@@ -83,7 +83,7 @@ export function BillingPanel({ profile }: BillingPanelProps) {
       borderColor: "border-primary/20",
       features: [
         "100 listing optimizations",
-        "Claude 3.5 SEO engine",
+        "Claude 4.6 SEO engine",
         "XML eBay Trading Sync",
         "1 month validity",
       ],
@@ -97,7 +97,7 @@ export function BillingPanel({ profile }: BillingPanelProps) {
       borderColor: "border-secondary/30",
       features: [
         "1,000 listing optimizations",
-        "Claude 3.5 advanced copywriting",
+        "Claude 4.6 advanced copywriting",
         "Batch queue processing",
         "1 month validity",
       ],

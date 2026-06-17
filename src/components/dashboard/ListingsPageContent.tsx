@@ -138,7 +138,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold font-heading text-white">Active Product Listings</h2>
-          <p className="text-sm text-gray-400">Select active listings to optimize using Claude 3.5 Sonnet.</p>
+          <p className="text-sm text-gray-400">Select active listings to optimize using Claude 4.6 Sonnet.</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -376,7 +376,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
                                 <div className="p-4 rounded-xl border border-green-500/15 bg-green-500/[0.02] space-y-3">
                                   <div className="flex items-center justify-between">
                                     <span className="text-[9px] font-bold tracking-wider uppercase bg-green-500/15 border border-green-500/35 text-green-400 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                      <Sparkles className="w-3 h-3" /> Claude 3.5 AI-Optimized
+                                      <Sparkles className="w-3 h-3" /> Claude 4.6 AI-Optimized
                                     </span>
                                   </div>
                                   <div>

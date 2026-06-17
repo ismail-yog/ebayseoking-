@@ -31,7 +31,7 @@ export function FloatingActionBar({ selectedCount, onClear, onOptimize, isLoadin
               <p className="text-xs font-bold text-white">
                 {selectedCount} {selectedCount === 1 ? "Listing" : "Listings"} Selected
               </p>
-              <p className="text-[10px] text-gray-400">Ready to optimize with Claude 3.5 AI</p>
+              <p className="text-[10px] text-gray-400">Ready to optimize with Claude 4.6 AI</p>
             </div>
           </div>
 

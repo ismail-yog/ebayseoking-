@@ -135,7 +135,7 @@ export function SettingsPanel({ profile }: SettingsPanelProps) {
         <h3 className="text-base font-bold font-heading text-white">System Status</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
-            <span className="text-gray-400">Claude 3.5 API</span>
+            <span className="text-gray-400">Claude 4.6 API</span>
             <span className="text-green-400 font-semibold flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" /> Operational
             </span>
