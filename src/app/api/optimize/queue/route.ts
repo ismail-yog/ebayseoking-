@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClientServer } from "@/lib/supabase/server";
 import { Client } from "@upstash/qstash";
+import { processOptimizationJob } from "@/app/api/jobs/worker/route";
 
 const qstashToken = process.env.QSTASH_TOKEN || "placeholder-qstash-token";
 const qstashClient = new Client({ token: qstashToken });
@@ -78,17 +79,8 @@ export async function POST(req: Request) {
     const fallbackPromises = [];
     for (const listingId of listingIds) {
       if (qstashToken === "placeholder-qstash-token" || process.env.NODE_ENV === "development") {
-        console.warn(`[DEV] Mocking QStash publish for listing: ${listingId}. Invoking worker synchronously...`);
-        fallbackPromises.push(
-          fetch(destinationUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-qstash-signature-mock": "true",
-            },
-            body: JSON.stringify({ listingId, userId: user.id, autoPublish }),
-          }).catch((err) => console.error("Worker fetch trigger error:", err))
-        );
+        console.warn(`[DEV] Mocking QStash publish for listing: ${listingId}. Invoking worker directly in memory...`);
+        fallbackPromises.push(processOptimizationJob(listingId, user.id, autoPublish));
       } else {
         await qstashClient.publishJSON({
           url: destinationUrl,
@@ -98,8 +90,17 @@ export async function POST(req: Request) {
     }
 
     if (fallbackPromises.length > 0) {
-      // In Vercel serverless environments, we must await the promises so the container doesn't die.
-      await Promise.all(fallbackPromises);
+      // In Vercel serverless environments, we await the promises so the container doesn't die.
+      // Calling the imported function directly bypasses network limits and 308 redirect bugs.
+      const results = await Promise.all(fallbackPromises);
+      
+      // Check if any failed
+      const hasErrors = results.some(r => r.error);
+      if (hasErrors) {
+        console.error("Some background optimizations failed:", results.filter(r => r.error));
+        // We still return success: true for the queue ingestion, since some might have succeeded.
+        // The DB state will accurately reflect individual failures.
+      }
     }
 
     return NextResponse.json({ success: true, count: selectedCount });
