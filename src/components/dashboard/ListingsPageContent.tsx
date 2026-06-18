@@ -44,6 +44,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
   const [sliderPosition, setSliderPosition] = useState(50); // 0-100 percentage for the split-pane compare slider
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [autoPublishMode, setAutoPublishMode] = useState(false);
   const [credits, setCredits] = useState<ProfileStats>(profile);
   const router = useRouter();
 
@@ -123,7 +124,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
       const res = await fetch("/api/optimize/queue", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingIds: targetIds }),
+        body: JSON.stringify({ listingIds: targetIds, autoPublish: autoPublishMode }),
       });
 
       toast.dismiss();
@@ -185,9 +186,41 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
     handleBatchOptimize(pendingListings.map(l => l.id));
   };
 
+  const handleManualPublish = async (listingId: string) => {
+    setIsLoading(true);
+    toast.loading("Publishing to eBay...");
+    try {
+      const res = await fetch("/api/ebay/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId }),
+      });
+      const data = await res.json();
+      toast.dismiss();
+      if (!res.ok) throw new Error(data.error || "Failed to publish listing");
+      
+      toast.success("Successfully published to eBay!");
+      
+      setListings((prev) =>
+        prev.map((l) =>
+          l.id === listingId ? { ...l, status: "Optimized" } : l
+        )
+      );
+      if (activeDrawerListing?.id === listingId) {
+        setActiveDrawerListing({ ...activeDrawerListing, status: "Optimized" });
+      }
+    } catch (err: unknown) {
+      toast.dismiss();
+      toast.error(err instanceof Error ? err.message : "Publish failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const pendingCount = listings.filter((l) => l.status === "Pending").length;
   const inProgressCount = listings.filter((l) => l.status === "In Progress" || l.status === "Pending Queue").length;
   const optimizedCount = listings.filter((l) => l.status === "Optimized").length;
+  const pendingReviewCount = listings.filter((l) => l.status === "Pending Review").length;
   const failedCount = listings.filter((l) => l.status === "Failed").length;
 
   return (
@@ -200,6 +233,16 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
         </div>
 
         <div className="flex items-center flex-wrap gap-2 sm:gap-3">
+          <label className="flex items-center gap-2 cursor-pointer bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 transition-colors">
+            <input 
+              type="checkbox" 
+              checked={autoPublishMode}
+              onChange={(e) => setAutoPublishMode(e.target.checked)}
+              className="rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+            />
+            <span className="text-xs font-bold text-slate-700">Auto-publish to eBay</span>
+          </label>
+
           <button
             onClick={handleFetchListings}
             disabled={isFetching}
@@ -254,7 +297,14 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
             <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-md relative overflow-hidden flex flex-col justify-between min-h-[110px]">
               <div>
                 <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Optimized & Synced</p>
-                <h3 className="text-2xl font-black text-green-700 font-heading mt-1">{optimizedCount}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <h3 className="text-2xl font-black text-green-700 font-heading">{optimizedCount}</h3>
+                  {pendingReviewCount > 0 && (
+                    <span className="text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full shadow-inner animate-pulse">
+                      {pendingReviewCount} Needs Review
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
                 <span className="text-[10px] font-extrabold text-green-700 bg-green-50 px-1.5 py-0.5 rounded border border-green-200 flex items-center gap-0.5 shadow-inner">
@@ -461,7 +511,12 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
                         <td className="p-4">
                           {listing.status === "Optimized" && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-300 px-2.5 py-0.5 rounded-full shadow-inner">
-                              <CheckCircle2 className="w-3 h-3" /> Optimized
+                              <CheckCircle2 className="w-3 h-3" /> Live on eBay
+                            </span>
+                          )}
+                          {listing.status === "Pending Review" && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-300 px-2.5 py-0.5 rounded-full shadow-inner animate-pulse">
+                              <Eye className="w-3 h-3" /> Review Required
                             </span>
                           )}
                           {listing.status === "In Progress" && (
@@ -484,7 +539,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
                           )}
                         </td>
                         <td className="p-4 text-center">
-                          {listing.status === "Optimized" ? (
+                          {(listing.status === "Optimized" || listing.status === "Pending Review") ? (
                             <button
                               onClick={() => setActiveDrawerListing(listing)}
                               className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/50 shadow-sm"
@@ -640,12 +695,22 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
               </div>
 
               {/* Close Footer Action */}
-              <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-end">
+              <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+                {activeDrawerListing.status === "Pending Review" && (
+                  <button
+                    onClick={() => handleManualPublish(activeDrawerListing.id)}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg text-xs font-bold cursor-pointer shadow-md transition-all disabled:opacity-50"
+                  >
+                    {isLoading ? <Clock className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 text-white" />}
+                    Approve & Publish to eBay
+                  </button>
+                )}
                 <button
                   onClick={() => setActiveDrawerListing(null)}
                   className="px-5 py-2.5 bg-slate-900 hover:bg-slate-850 text-white rounded-lg text-xs font-bold cursor-pointer shadow-md transition-all focus-visible:ring-2 focus-visible:ring-slate-800 focus-visible:ring-offset-1"
                 >
-                  Approve & Close
+                  {activeDrawerListing.status === "Pending Review" ? "Close & Decide Later" : "Close"}
                 </button>
               </div>
             </motion.div>

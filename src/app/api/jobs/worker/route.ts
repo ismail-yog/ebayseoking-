@@ -40,14 +40,14 @@ export async function POST(req: Request) {
   }
 
   // Parse payload
-  let payload: { listingId: string; userId: string };
+  let payload: { listingId: string; userId: string; autoPublish?: boolean };
   try {
     payload = JSON.parse(rawBody);
   } catch {
     return NextResponse.json({ error: "Malformed JSON body" }, { status: 400 });
   }
 
-  const { listingId, userId } = payload;
+  const { listingId, userId, autoPublish = true } = payload;
   if (!listingId || !userId) {
     return NextResponse.json({ error: "Missing listingId or userId" }, { status: 400 });
   }
@@ -125,32 +125,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `AI Optimization failed: ${msg}` }, { status: 500 });
     }
 
-    // 4. Revise Fixed Price Item on eBay
-    const revision = await reviseEbayFixedPriceItem(
-      listing.ebay_item_id,
-      optimizedTitle,
-      optimizedDesc,
-      accessToken
-    );
+    // 4. Revise Fixed Price Item on eBay (if autoPublish is true)
+    let finalStatus = "Pending Review";
+    
+    if (autoPublish) {
+      const revision = await reviseEbayFixedPriceItem(
+        listing.ebay_item_id,
+        optimizedTitle,
+        optimizedDesc,
+        accessToken
+      );
 
-    if (!revision.success) {
-      console.error(`eBay revision failed: ${revision.error}`);
-      await supabase
-        .from("product_listings")
-        .update({
-          status: "Failed",
-          error_message: `eBay API error: ${revision.error}`,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", listingId);
-      return NextResponse.json({ error: `eBay revision failed: ${revision.error}` }, { status: 500 });
+      if (!revision.success) {
+        console.error(`eBay revision failed: ${revision.error}`);
+        await supabase
+          .from("product_listings")
+          .update({
+            status: "Failed",
+            error_message: `eBay API error: ${revision.error}`,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", listingId);
+        return NextResponse.json({ error: `eBay revision failed: ${revision.error}` }, { status: 500 });
+      }
+      
+      finalStatus = "Optimized";
     }
 
-    // 5. Update Database listing status to Optimized
+    // 5. Update Database listing status
     const { error: finalUpdateErr } = await supabase
       .from("product_listings")
       .update({
-        status: "Optimized",
+        status: finalStatus,
         optimized_title: optimizedTitle,
         optimized_description: optimizedDesc,
         error_message: null,
@@ -160,8 +166,9 @@ export async function POST(req: Request) {
 
     if (finalUpdateErr) throw finalUpdateErr;
 
-    console.log(`Successfully completed background AI optimization for listing ${listingId}`);
-    return NextResponse.json({ success: true });
+    console.log(`Successfully completed background AI optimization for listing ${listingId} (Auto-Publish: ${autoPublish})`);
+    return NextResponse.json({ success: true, autoPublish });
+
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Fatal worker execution error";
     console.error(`Fatal background worker error: ${errorMsg}`);

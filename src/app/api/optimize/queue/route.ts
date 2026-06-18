@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { listingIds } = (await req.json()) as { listingIds: string[] };
+    const { listingIds, autoPublish = true } = (await req.json()) as { listingIds: string[]; autoPublish?: boolean };
 
     if (!listingIds || !Array.isArray(listingIds) || listingIds.length === 0) {
       return NextResponse.json({ error: "No listings specified" }, { status: 400 });
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const host = req.headers.get("host") || "localhost:3000";
     const destinationUrl = `${protocol}://${host}/api/jobs/worker`;
 
-    console.log(`Queueing ${selectedCount} items. QStash callback: ${destinationUrl}`);
+    console.log(`Queueing ${selectedCount} items (AutoPublish: ${autoPublish}). QStash callback: ${destinationUrl}`);
 
     // Update listings status to In Progress
     const { error: listingsUpdateErr } = await supabase
@@ -87,14 +87,14 @@ export async function POST(req: Request) {
             "Content-Type": "application/json",
             "x-qstash-signature-mock": "true", // Custom dev bypass header
           },
-          body: JSON.stringify({ listingId, userId: user.id }),
+          body: JSON.stringify({ listingId, userId: user.id, autoPublish }),
         }).catch((err) => console.error("Worker fetch trigger error:", err));
         
       } else {
         // Production: Publish to Upstash QStash
         await qstashClient.publishJSON({
           url: destinationUrl,
-          body: { listingId, userId: user.id },
+          body: { listingId, userId: user.id, autoPublish },
         });
       }
     }
