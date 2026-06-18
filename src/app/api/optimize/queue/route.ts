@@ -74,29 +74,32 @@ export async function POST(req: Request) {
 
     if (listingsUpdateErr) throw listingsUpdateErr;
 
-    // Publish each listing task to QStash
+    // Publish each listing task to QStash or fallback to synchronous execution
+    const fallbackPromises = [];
     for (const listingId of listingIds) {
       if (qstashToken === "placeholder-qstash-token" || process.env.NODE_ENV === "development") {
-        // Fallback: If QStash isn't configured or we are in development, trigger the worker asynchronously using fetch
-        console.warn(`[DEV] Mocking QStash publish for listing: ${listingId}. Invoking worker directly...`);
-        
-        // Asynchronously call worker locally to simulate background processing
-        fetch(destinationUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-qstash-signature-mock": "true", // Custom dev bypass header
-          },
-          body: JSON.stringify({ listingId, userId: user.id, autoPublish }),
-        }).catch((err) => console.error("Worker fetch trigger error:", err));
-        
+        console.warn(`[DEV] Mocking QStash publish for listing: ${listingId}. Invoking worker synchronously...`);
+        fallbackPromises.push(
+          fetch(destinationUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-qstash-signature-mock": "true",
+            },
+            body: JSON.stringify({ listingId, userId: user.id, autoPublish }),
+          }).catch((err) => console.error("Worker fetch trigger error:", err))
+        );
       } else {
-        // Production: Publish to Upstash QStash
         await qstashClient.publishJSON({
           url: destinationUrl,
           body: { listingId, userId: user.id, autoPublish },
         });
       }
+    }
+
+    if (fallbackPromises.length > 0) {
+      // In Vercel serverless environments, we must await the promises so the container doesn't die.
+      await Promise.all(fallbackPromises);
     }
 
     return NextResponse.json({ success: true, count: selectedCount });

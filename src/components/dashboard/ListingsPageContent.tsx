@@ -48,6 +48,12 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
   const [credits, setCredits] = useState<ProfileStats>(profile);
   const router = useRouter();
 
+  // Sync state when server component data (initialListings) refreshes
+  useEffect(() => {
+    setListings(initialListings);
+    setCredits(profile);
+  }, [initialListings, profile]);
+
   // Simulated Autopilot Logs
   const [logs, setLogs] = useState<string[]>([
     "[02:40 AM] Scheduler: Initializing background cron cycle.",
@@ -150,6 +156,9 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
       }));
 
       if (!idsToOptimize) setSelectedIds([]);
+      
+      // Refresh the page data to get the actual DB status (which might be 'Optimized' now if fallback was used)
+      router.refresh();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to start optimizations");
     } finally {
