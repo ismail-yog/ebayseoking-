@@ -20,27 +20,27 @@ export function CreditCounter({ used, limit, plan }: CreditCounterProps) {
   };
 
   return (
-    <div className="glass rounded-xl p-4.5 border border-white/5 space-y-3">
+    <div className="rounded-xl p-4 bg-slate-50 border-2 border-slate-200 space-y-3 shadow-inner">
       {/* Label and Info */}
       <div className="flex items-center justify-between text-xs">
-        <span className="text-gray-400 font-medium flex items-center gap-1.5">
+        <span className="text-slate-500 font-bold flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-primary" />
           <span>Credits Used</span>
         </span>
-        <span className="font-semibold text-white">
+        <span className="font-black text-slate-900">
           {used} / {limit}
         </span>
       </div>
 
       {/* Progress Bar */}
-      <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden border border-white/5">
+      <div className="h-2.5 w-full rounded-full bg-slate-200 overflow-hidden border border-slate-300">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className={`h-full rounded-full bg-gradient-to-r ${
+          className={`h-full rounded-full bg-gradient-to-r shadow-sm ${
             isCloseToLimit 
-              ? "from-secondary to-accent-magenta" 
+              ? "from-red-500 to-orange-500" 
               : "from-primary to-accent-cyan"
           }`}
         />
@@ -52,7 +52,7 @@ export function CreditCounter({ used, limit, plan }: CreditCounterProps) {
           onClick={handleUpgrade}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white text-xs font-semibold shadow-lg shadow-primary/20 cursor-pointer"
+          className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white text-xs font-bold shadow-md shadow-primary/20 cursor-pointer transition-all"
         >
           <span>Upgrade Plan</span>
           <ArrowUpRight className="w-3.5 h-3.5" />
@@ -60,8 +60,8 @@ export function CreditCounter({ used, limit, plan }: CreditCounterProps) {
       )}
 
       {/* Helper text */}
-      <div className="text-[10px] text-gray-500 text-center uppercase tracking-wider">
-        Plan: <span className="font-bold text-gray-400">{plan}</span>
+      <div className="text-[10px] text-slate-500 text-center uppercase tracking-wider font-bold">
+        Plan: <span className="font-extrabold text-slate-700 capitalize">{plan}</span>
       </div>
     </div>
   );

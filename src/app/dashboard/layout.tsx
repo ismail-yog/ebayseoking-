@@ -89,36 +89,36 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="relative min-h-screen flex bg-bg-primary text-gray-100 font-sans">
-      {/* Decorative Orbs */}
-      <div className="absolute top-[10%] left-[5%] w-[35%] h-[35%] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[10%] right-[5%] w-[35%] h-[35%] bg-secondary/5 rounded-full blur-[100px] pointer-events-none" />
+    <div className="relative min-h-screen flex bg-bg-primary font-sans">
+      {/* Subtle decorative ambient blobs */}
+      <div className="absolute top-[10%] left-[5%] w-[30%] h-[30%] bg-primary/[0.04] rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-secondary/[0.04] rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Glass Sidebar */}
-      <aside className="w-64 border-r border-white/5 bg-bg-secondary/40 backdrop-blur-md flex flex-col z-20">
+      {/* Light-Mode Sidebar */}
+      <aside className="hidden lg:flex w-[260px] border-r-2 border-slate-200 bg-white flex-col z-20 shadow-sm shrink-0">
         {/* Sidebar Header */}
-        <div className="h-20 flex items-center px-6 border-b border-white/5">
-          <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20">
+        <div className="h-[72px] flex items-center px-6 border-b border-slate-200">
+          <Link href="/dashboard" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-md shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
               <Zap className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="font-bold text-lg font-heading bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            <span className="font-black text-xl font-heading text-slate-950 tracking-tight">
               SyncSell
             </span>
           </Link>
         </div>
 
-        {/* Profile Section & Credits (Moved to Top) */}
-        <div className="p-4.5 border-b border-white/5 space-y-4">
+        {/* Profile Section & Credits */}
+        <div className="p-4.5 border-b border-slate-200 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-accent-magenta flex items-center justify-center font-bold text-sm text-white shrink-0">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-accent-magenta flex items-center justify-center font-bold text-sm text-white shrink-0 shadow-md shadow-primary/15">
               {activeProfile.full_name.substring(0, 2).toUpperCase()}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-semibold truncate text-white">
+              <p className="text-sm font-bold truncate text-slate-900">
                 {activeProfile.full_name}
               </p>
-              <p className="text-xs text-gray-400 truncate">
+              <p className="text-[11px] text-slate-500 truncate font-medium">
                 {activeProfile.email}
               </p>
             </div>
@@ -131,57 +131,57 @@ export default async function DashboardLayout({
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 py-6 px-4 space-y-1">
+        <nav className="flex-1 py-5 px-3 space-y-1">
           <Link 
             href="/dashboard" 
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-primary hover:bg-primary/[0.06] transition-all duration-200 group"
           >
-            <LayoutDashboard className="w-4.5 h-4.5 text-primary" />
+            <LayoutDashboard className="w-[18px] h-[18px] text-slate-400 group-hover:text-primary transition-colors" />
             <span>Overview</span>
           </Link>
           <Link 
             href="/dashboard/listings" 
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-secondary hover:bg-secondary/[0.06] transition-all duration-200 group"
           >
-            <ShoppingBag className="w-4.5 h-4.5 text-secondary" />
+            <ShoppingBag className="w-[18px] h-[18px] text-slate-400 group-hover:text-secondary transition-colors" />
             <span>Listings</span>
           </Link>
           <Link 
             href="/dashboard?tab=billing" 
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-accent-cyan hover:bg-accent-cyan/[0.06] transition-all duration-200 group"
           >
-            <CreditCard className="w-4.5 h-4.5 text-accent-cyan" />
+            <CreditCard className="w-[18px] h-[18px] text-slate-400 group-hover:text-accent-cyan transition-colors" />
             <span>Billing</span>
           </Link>
           <Link 
             href="/dashboard?tab=settings" 
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 group"
           >
-            <Settings className="w-4.5 h-4.5 text-gray-400" />
+            <Settings className="w-[18px] h-[18px] text-slate-400 group-hover:text-slate-600 transition-colors" />
             <span>Settings</span>
           </Link>
         </nav>
 
-        {/* Sidebar Footer (Connect eBay & Sign Out - Moved to Bottom) */}
-        <div className="p-4 border-t border-white/5 space-y-3 mt-auto">
+        {/* Sidebar Footer (Connect eBay & Sign Out) */}
+        <div className="p-4 border-t border-slate-200 space-y-3 mt-auto">
           {!isConnected ? (
             <a 
               href="/api/ebay/auth"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-semibold text-white shadow-lg shadow-primary/20 transition-all text-center cursor-pointer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-bold text-white shadow-lg shadow-primary/20 transition-all text-center cursor-pointer hover:-translate-y-0.5"
             >
               <Zap className="w-3.5 h-3.5 fill-white/10" />
               <span>Connect eBay Store</span>
             </a>
           ) : (
             <div className="space-y-2 w-full">
-              <div className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/20 text-xs font-semibold text-green-400">
+              <div className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-green-50 border-2 border-green-200 text-xs font-bold text-green-700">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span className="truncate">Connected: {credentials?.ebay_store_name || "eBay"}</span>
               </div>
               <form action={disconnectEbay} className="w-full">
                 <button
                   type="submit"
-                  className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-[11px] font-semibold text-red-400 transition-all cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-red-50 hover:bg-red-100 border-2 border-red-200 text-[11px] font-bold text-red-600 transition-all cursor-pointer"
                 >
                   Disconnect eBay
                 </button>
@@ -192,7 +192,7 @@ export default async function DashboardLayout({
           <form action={logout} className="w-full">
             <button 
               type="submit" 
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/20 text-xs font-semibold text-gray-300 hover:text-red-400 transition-all cursor-pointer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-50 hover:bg-red-50 border-2 border-slate-200 hover:border-red-200 text-xs font-bold text-slate-600 hover:text-red-600 transition-all cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
@@ -203,23 +203,23 @@ export default async function DashboardLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header bar */}
-        <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between z-10">
+        {/* Top Header Bar */}
+        <header className="h-[72px] border-b-2 border-slate-200 bg-white px-6 lg:px-8 flex items-center justify-between z-10 shadow-sm">
           <div>
-            <h1 className="text-lg font-bold font-heading text-white">Dashboard Workspace</h1>
-            <p className="text-xs text-gray-400">Scale your eBay SEO autopilot</p>
+            <h1 className="text-lg font-black font-heading text-slate-950 tracking-tight">Dashboard Workspace</h1>
+            <p className="text-[11px] text-slate-500 font-medium">Scale your eBay SEO autopilot</p>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-green-400" />
-              <span className="text-gray-300 font-medium capitalize">{activeProfile.plan_type} Tier</span>
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 border-2 border-slate-200 text-xs shadow-inner">
+              <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
+              <span className="text-slate-700 font-bold capitalize">{activeProfile.plan_type} Tier</span>
             </div>
           </div>
         </header>
 
         {/* View Content */}
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8">
           {children}
         </main>
       </div>

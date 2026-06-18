@@ -42,10 +42,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
       <body className="antialiased font-sans bg-bg-primary text-slate-800 min-h-screen selection:bg-primary/20 selection:text-primary relative overflow-x-hidden">
-        {/* Background Pastel Blur Blobs */}
-        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-blob-indigo filter blur-[120px] pointer-events-none -z-10 animate-pulse-slow" />
-        <div className="absolute top-[25%] right-[-15%] w-[50vw] h-[50vw] rounded-full bg-blob-purple filter blur-[100px] pointer-events-none -z-10" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-blob-cyan filter blur-[110px] pointer-events-none -z-10 animate-pulse-slow" />
+        {/* Subtle ambient gradient blobs (reduced intensity for light theme) */}
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blob-indigo filter blur-[140px] pointer-events-none -z-10 opacity-60" />
+        <div className="absolute top-[30%] right-[-15%] w-[40vw] h-[40vw] rounded-full bg-blob-purple filter blur-[120px] pointer-events-none -z-10 opacity-50" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[45vw] h-[45vw] rounded-full bg-blob-cyan filter blur-[130px] pointer-events-none -z-10 opacity-50" />
         <Providers>
           {children}
         </Providers>

@@ -118,7 +118,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/60 backdrop-blur-md"
+          className="fixed inset-0 bg-slate-950/40 backdrop-blur-md"
         />
 
         {/* Modal Content */}
@@ -126,40 +126,43 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-md overflow-hidden rounded-2xl glass-premium p-8 z-10 text-left"
+          className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white border-2 border-slate-200 p-8 z-10 text-left shadow-2xl shadow-slate-300/50"
         >
-          {/* Decorative Glowing Orbs */}
-          <div className="absolute -top-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-secondary/20 rounded-full blur-3xl" />
+          {/* Top gradient accent */}
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-secondary to-accent-cyan" />
+
+          {/* Subtle decorative blobs */}
+          <div className="absolute -top-16 -left-16 w-32 h-32 bg-primary/[0.06] rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-secondary/[0.06] rounded-full blur-3xl pointer-events-none" />
 
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors"
+            className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
 
           {/* Header */}
-          <div className="mb-6 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary mb-3">
+          <div className="mb-6 text-center relative z-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary mb-3">
               <Sparkles className="w-3.5 h-3.5 animate-pulse" />
               <span>Enter the autopilot era</span>
             </div>
-            <h2 className="text-2xl font-bold font-heading text-white">
+            <h2 className="text-2xl font-black font-heading text-slate-950 tracking-tight">
               {activeTab === "login"
                 ? "Welcome Back"
                 : activeTab === "signup"
                 ? "Create Account"
                 : "Secure OTP Login"}
             </h2>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-slate-500 mt-1.5 font-medium">
               Start optimizing your eBay listings with SyncSell
             </p>
           </div>
 
           {/* Tabs */}
-          <div className="relative flex p-1 mb-6 rounded-lg bg-white/5 border border-white/10">
+          <div className="relative flex p-1 mb-6 rounded-xl bg-slate-100 border border-slate-200">
             {(["login", "signup", "otp"] as const).map((tab) => (
               <button
                 key={tab}
@@ -167,14 +170,14 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                   setActiveTab(tab);
                   setOtpSent(false);
                 }}
-                className={`relative flex-1 py-1.5 text-xs font-medium rounded-md capitalize transition-colors duration-200 z-10 ${
-                  activeTab === tab ? "text-white" : "text-gray-400 hover:text-white"
+                className={`relative flex-1 py-2 text-xs font-bold rounded-lg capitalize transition-colors duration-200 z-10 cursor-pointer ${
+                  activeTab === tab ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
                 }`}
               >
                 {activeTab === tab && (
                   <motion.div
                     layoutId="active-tab"
-                    className="absolute inset-0 bg-primary/30 border border-primary/40 rounded-md -z-10"
+                    className="absolute inset-0 bg-white border border-slate-200 rounded-lg shadow-sm -z-10"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -190,7 +193,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0915]"
+                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-300 text-sm font-bold text-slate-800 transition-all duration-200 hover:-translate-y-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer shadow-sm"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -204,9 +207,9 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
               {/* Separator */}
               <div className="relative my-5 text-center">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/5" />
+                  <div className="w-full border-t border-slate-200" />
                 </div>
-                <span className="relative px-3 bg-[#0a0915] text-[11px] uppercase tracking-wider text-gray-500">
+                <span className="relative px-3 bg-white text-[11px] uppercase tracking-wider text-slate-400 font-bold">
                   Or email credentials
                 </span>
               </div>
@@ -217,8 +220,8 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
           {activeTab !== "otp" ? (
             <form onSubmit={handleEmailAuth} className="space-y-4">
               {activeTab === "signup" && (
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-400">Full Name</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600">Full Name</label>
                   <div className="relative">
                     <input
                       type="text"
@@ -226,15 +229,15 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                       placeholder="John Doe"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2 px-10 text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200"
+                      className="w-full bg-white border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl py-2.5 px-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 font-medium shadow-sm"
                     />
-                    <Sparkles className="absolute left-3 top-2.5 w-4.5 h-4.5 text-gray-500" />
+                    <Sparkles className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                   </div>
                 </div>
               )}
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-400">Email Address</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600">Email Address</label>
                 <div className="relative">
                   <input
                     type="email"
@@ -242,14 +245,14 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2 px-10 text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200"
+                    className="w-full bg-white border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl py-2.5 px-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 font-medium shadow-sm"
                   />
-                  <Mail className="absolute left-3 top-2.5 w-4.5 h-4.5 text-gray-500" />
+                  <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-400">Password</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600">Password</label>
                 <div className="relative">
                   <input
                     type="password"
@@ -257,16 +260,16 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2 px-10 text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200"
+                    className="w-full bg-white border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl py-2.5 px-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 font-medium shadow-sm"
                   />
-                  <Lock className="absolute left-3 top-2.5 w-4.5 h-4.5 text-gray-500" />
+                  <Lock className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white font-medium py-2.5 rounded-lg text-sm transition-all duration-200 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0915]"
+                className="w-full flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white font-bold py-3 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white hover:-translate-y-0.5"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -281,8 +284,8 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
           ) : (
             /* SMS OTP Form */
             <form onSubmit={handlePhoneSubmit} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-400">Phone Number (with country code)</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600">Phone Number (with country code)</label>
                 <div className="relative">
                   <input
                     type="tel"
@@ -291,20 +294,20 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                     placeholder="+15556667777"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2 px-10 text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200 disabled:opacity-50"
+                    className="w-full bg-white border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl py-2.5 px-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 disabled:opacity-50 font-medium shadow-sm"
                   />
-                  <Smartphone className="absolute left-3 top-2.5 w-4.5 h-4.5 text-gray-500" />
+                  <Smartphone className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 </div>
-                <p className="text-[10px] text-gray-500">Provide format: +[country-code][number]</p>
+                <p className="text-[10px] text-slate-500 font-medium">Provide format: +[country-code][number]</p>
               </div>
 
               {otpSent && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="space-y-1 overflow-hidden"
+                  className="space-y-1.5 overflow-hidden"
                 >
-                  <label className="text-xs font-semibold text-gray-400">OTP Code</label>
+                  <label className="text-xs font-bold text-slate-600">OTP Code</label>
                   <div className="relative">
                     <input
                       type="text"
@@ -312,9 +315,9 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                       placeholder="123456"
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2 px-10 text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200"
+                      className="w-full bg-white border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl py-2.5 px-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 font-medium shadow-sm"
                     />
-                    <Check className="absolute left-3 top-2.5 w-4.5 h-4.5 text-gray-500" />
+                    <Check className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                   </div>
                 </motion.div>
               )}
@@ -322,7 +325,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-accent-cyan to-primary hover:brightness-110 text-white font-medium py-2.5 rounded-lg text-sm transition-all duration-200 shadow-lg shadow-accent-cyan/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0915]"
+                className="w-full flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-accent-cyan to-primary hover:brightness-110 text-white font-bold py-3 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-accent-cyan/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white hover:-translate-y-0.5"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -338,7 +341,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                 <button
                   type="button"
                   onClick={() => setOtpSent(false)}
-                  className="w-full text-center text-xs text-primary hover:underline hover:text-indigo-400 bg-transparent border-0 cursor-pointer"
+                  className="w-full text-center text-xs text-primary hover:underline hover:text-indigo-600 bg-transparent border-0 cursor-pointer font-bold"
                 >
                   Change phone number
                 </button>
@@ -347,13 +350,13 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
           )}
 
           {/* Policy Text */}
-          <p className="text-[10px] text-center text-gray-500 mt-6 leading-relaxed">
+          <p className="text-[10px] text-center text-slate-400 mt-6 leading-relaxed font-medium">
             By signing in, you agree to SyncSell&apos;s{" "}
-            <a href="#" className="underline text-gray-400 hover:text-white">
+            <a href="#" className="underline text-slate-600 hover:text-primary font-bold">
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="#" className="underline text-gray-400 hover:text-white">
+            <a href="#" className="underline text-slate-600 hover:text-primary font-bold">
               Privacy Policy
             </a>.
           </p>
