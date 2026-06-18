@@ -395,7 +395,6 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
           </div>
         </div>
       ) : (
-        /* Data Table & Controls */
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
             {/* Search bar */}
@@ -440,7 +439,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
             </div>
           </div>
 
-          {/* Table Card */}
+          {/* Main Table Card */}
           <div className="bg-white rounded-xl overflow-hidden border-2 border-slate-300 shadow-md">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -554,6 +553,121 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
                       </tr>
                     );
                   })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Before & After Results Section */}
+      {(optimizedCount > 0 || pendingReviewCount > 0) && (
+        <div className="mt-12 space-y-6">
+          <div className="flex items-center gap-3 border-b-2 border-slate-200 pb-3">
+            <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-sm">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black font-heading text-slate-900 tracking-tight">Optimization Results (Before & After)</h2>
+              <p className="text-xs font-semibold text-slate-500 mt-0.5">See exactly how Claude 4.6 improved your listings.</p>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 rounded-xl overflow-hidden border-2 border-slate-300 shadow-md">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-300 bg-slate-200/50 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                    <th className="p-4 w-16 text-center">Item</th>
+                    <th className="p-4 w-1/3">Original Title (Before)</th>
+                    <th className="p-4 w-1/3">Optimized Title (After)</th>
+                    <th className="p-4 w-32 text-center">Status</th>
+                    <th className="p-4 w-28 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 text-sm">
+                  {listings.filter(l => l.status === "Optimized" || l.status === "Pending Review").map((listing) => (
+                    <tr key={`result-${listing.id}`} className="bg-white hover:bg-slate-50/50 transition-colors">
+                      <td className="p-4 align-top">
+                        <div className="flex flex-col items-center gap-2">
+                          {listing.image_urls && listing.image_urls.length > 0 ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={listing.image_urls[0]}
+                              alt={listing.title}
+                              className="w-12 h-12 rounded-lg object-cover border border-slate-300 shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] text-slate-500 font-bold font-mono">
+                              N/A
+                            </div>
+                          )}
+                          <span className="text-[9px] font-mono font-bold text-slate-400 text-center w-16 truncate" title={listing.ebay_item_id}>
+                            {listing.ebay_item_id}
+                          </span>
+                        </div>
+                      </td>
+                      
+                      <td className="p-4 align-top">
+                        <div className="h-full bg-red-50/50 border border-red-100 rounded-lg p-3">
+                          <p className="text-[10px] font-extrabold text-red-600 uppercase mb-1.5 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                            Original
+                          </p>
+                          <p className="text-xs text-slate-700 font-medium leading-relaxed">
+                            {listing.title}
+                          </p>
+                        </div>
+                      </td>
+                      
+                      <td className="p-4 align-top">
+                        <div className="h-full bg-green-50/80 border border-green-300 rounded-lg p-3 shadow-inner">
+                          <p className="text-[10px] font-extrabold text-green-700 uppercase mb-1.5 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            Cassini Optimized
+                          </p>
+                          <p className="text-xs text-slate-950 font-bold leading-relaxed">
+                            {listing.optimized_title}
+                          </p>
+                        </div>
+                      </td>
+                      
+                      <td className="p-4 text-center align-middle">
+                        {listing.status === "Optimized" ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-300 px-2.5 py-1 rounded-full shadow-inner">
+                            <CheckCircle2 className="w-3 h-3" /> Live
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-300 px-2.5 py-1 rounded-full shadow-inner animate-pulse">
+                            <Eye className="w-3 h-3" /> Review
+                          </span>
+                        )}
+                      </td>
+                      
+                      <td className="p-4 text-center align-middle">
+                        <div className="flex flex-col gap-2 items-center justify-center">
+                          <button
+                            onClick={() => setActiveDrawerListing(listing)}
+                            className="w-full max-w-[100px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold transition-all shadow-md"
+                          >
+                            <Eye className="w-3 h-3 text-primary" />
+                            View Desc
+                          </button>
+                          
+                          {listing.status === "Pending Review" && (
+                            <button
+                              onClick={() => handleManualPublish(listing.id)}
+                              disabled={isLoading}
+                              className="w-full max-w-[100px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-500 text-white text-[10px] font-bold transition-all shadow-md disabled:opacity-50"
+                            >
+                              <Zap className="w-3 h-3" />
+                              Publish
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
