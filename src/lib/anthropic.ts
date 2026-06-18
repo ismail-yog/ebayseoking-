@@ -46,23 +46,38 @@ export async function optimizeListingWithAI(title: string, description: string):
       },
       body: JSON.stringify({
         model: "claude-3-5-sonnet-20241022",
-        max_tokens: 1500,
-        system: "You are an expert eBay SEO copywriter. Your goal is to maximize Cassini search visibility. You must output ONLY a valid JSON object. Do NOT wrap it in markdown block syntax. Do not output anything else.",
+        max_tokens: 2500,
+        system: "You are an expert eBay SEO copywriter specializing in eBay's Cassini search algorithm. Your goal is to analyze listing information and optimize it for maximum search visibility, click-through rates (CTR), and sales conversion. You must output ONLY a valid, parseable JSON object matching the requested schema. Do NOT wrap the JSON in markdown code blocks (e.g. do not write ```json or ```). Do not include any conversational filler, preamble, or postamble.",
         messages: [
           {
             role: "user",
-            content: `Optimize the following eBay listing. 
+            content: `Optimize the following eBay listing.
 Original Title: "${title}"
 Original Description: "${description}"
 
-Guidelines:
-1. "optimized_title": Must be keyword-rich, frontloaded with high-volume search terms, and strictly maximum 80 characters.
-2. "optimized_description": Must be styled in responsive HTML suitable for eBay listings (avoiding external scripts or style tags, use inline styles instead).
+Strict SEO Optimization Guidelines:
 
-Response format:
+1. Title Optimization (Cassini Algorithm Rules):
+- LENGTH CONSTRAINT: Strictly 80 characters or fewer. Use as much of the 80 characters as possible without filler.
+- KEYWORD FRONT-LOADING: Place the absolute most high-volume search terms (Brand, Model, Product Name, Size, Color, Condition, Key Specs) in the first 40 characters.
+- NO PUFFERY/SPAM: Do not use subjective words (e.g., "L@@K", "WOW", "STUNNING", "AWESOME", "CHEAP", "BEST") or excessive punctuation (e.g., ***, !!!, -, @). Cassini actively down-ranks listings containing these.
+- CASE SENSITIVITY: Use Title Case (capitalize the first letter of each keyword). Do NOT use all-caps.
+- READABILITY: Ensure the title makes logical sense to a human shopper, not just a list of keywords.
+
+2. Description Optimization (Responsive HTML / eBay Policy Compliance):
+- COMPLIANCE: Do not include active content, JavaScript, external stylesheets, or iframes.
+- MOBILE RESPONSIVE: Wrap content in a single container div (max-width: 100% or 800px; margin: 0 auto; padding: 15px; font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; box-sizing: border-box;).
+- MODERN STYLING: Use inline CSS styles for a premium, clean layout. Use a slate/indigo palette (background: #ffffff; secondary text: #334155; muted text: #64748b; primary accent: #4f46e5; border-color: #e2e8f0;).
+- STRUCTURED LAYOUT:
+  - Header Section: Large, bold product heading using <h1> styled cleanly.
+  - Features & Description: A well-written overview detailing the product's benefits, incorporating secondary SEO keywords naturally (aim for ~3-5% keyword density).
+  - Specifications List: Clean bulleted list (<ul>/<li>) or key-value spec table.
+  - Purchase Terms: A clean, minor footer detailing shipping, returns, and customer satisfaction guarantees to build trust.
+
+Response Schema:
 {
-  "optimized_title": "string",
-  "optimized_description": "string"
+  "optimized_title": "Fully optimized title matching all Cassini SEO rules, 80 chars max",
+  "optimized_description": "Clean, responsive, inline-styled HTML description following the structured layout guidelines"
 }`,
           },
         ],

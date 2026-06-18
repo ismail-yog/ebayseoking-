@@ -76,12 +76,7 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => openAuth("login")}
-              className="hidden sm:inline-flex px-4 py-2 rounded-xl text-sm font-bold text-slate-700 hover:text-primary transition-colors cursor-pointer"
-            >
-              Log In
-            </button>
+
             <button
               onClick={() => openAuth("signup")}
               className="relative group overflow-hidden px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-sm font-bold transition-all duration-300 text-white cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none btn-shimmer"
@@ -141,27 +136,10 @@ export default function LandingPage() {
                 <span>Start Free Trial</span>
                 <ArrowRight className="w-4.5 h-4.5" />
               </button>
-              <button
-                onClick={() => openAuth("login")}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-800 font-bold shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
-              >
-                <span>View Demo</span>
-              </button>
+
             </motion.div>
 
-            {/* Social proof */}
-            <motion.div variants={fadeUp} className="flex items-center justify-center lg:justify-start gap-4 pt-4">
-              <div className="flex -space-x-2">
-                {["bg-indigo-400", "bg-purple-400", "bg-cyan-400", "bg-pink-400"].map((bg, i) => (
-                  <div key={i} className={`w-8 h-8 rounded-full ${bg} border-2 border-white shadow-sm flex items-center justify-center text-[9px] font-bold text-white`}>
-                    {String.fromCharCode(65 + i)}
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-slate-500 font-bold">
-                <span className="text-slate-900">500+</span> sellers optimizing with SyncSell
-              </p>
-            </motion.div>
+
           </motion.div>
 
           {/* Right Showcase Card */}
