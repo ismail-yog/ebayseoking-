@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, CheckCircle2, AlertCircle, Clock, 
-  Eye, Search, Store, X,
+  Eye, Search, Store, X, DownloadCloud, Zap,
   TrendingUp, Terminal, Sliders
 } from "lucide-react";
 import { FloatingActionBar } from "@/components/dashboard/FloatingActionBar";
@@ -42,7 +43,9 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
   const [activeDrawerListing, setActiveDrawerListing] = useState<Listing | null>(null);
   const [sliderPosition, setSliderPosition] = useState(50); // 0-100 percentage for the split-pane compare slider
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [credits, setCredits] = useState<ProfileStats>(profile);
+  const router = useRouter();
 
   // Simulated Autopilot Logs
   const [logs, setLogs] = useState<string[]>([
@@ -98,9 +101,12 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
     setSelectedIds(idsToSelect);
   };
 
-  const handleBatchOptimize = async () => {
-    const selectedCount = selectedIds.length;
+  const handleBatchOptimize = async (idsToOptimize?: string[]) => {
+    const targetIds = idsToOptimize || selectedIds;
+    const selectedCount = targetIds.length;
     const remainingCredits = credits.optimization_limit - credits.optimizations_used;
+
+    if (selectedCount === 0) return;
 
     if (selectedCount + credits.optimizations_used > credits.optimization_limit) {
       toast.error(
@@ -117,7 +123,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
       const res = await fetch("/api/optimize/queue", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingIds: selectedIds }),
+        body: JSON.stringify({ listingIds: targetIds }),
       });
 
       toast.dismiss();
@@ -132,7 +138,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
       // Dynamically update UI status to In Progress
       setListings((prev) =>
         prev.map((l) =>
-          selectedIds.includes(l.id) ? { ...l, status: "In Progress" } : l
+          targetIds.includes(l.id) ? { ...l, status: "In Progress" } : l
         )
       );
 
@@ -142,12 +148,41 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
         optimizations_used: prev.optimizations_used + selectedCount,
       }));
 
-      setSelectedIds([]);
+      if (!idsToOptimize) setSelectedIds([]);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to start optimizations");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFetchListings = async () => {
+    setIsFetching(true);
+    toast.loading("Fetching active listings from eBay...");
+    try {
+      const res = await fetch("/api/ebay/sync", { method: "POST" });
+      const data = await res.json();
+      toast.dismiss();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch listings");
+      
+      toast.success(`Successfully synced ${data.count} active listings from eBay!`);
+      router.refresh(); // Refresh Next.js page data
+    } catch (err: unknown) {
+      toast.dismiss();
+      const msg = err instanceof Error ? err.message : "Failed to sync eBay listings";
+      toast.error(msg);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const handleOptimizeAll = () => {
+    const pendingListings = listings.filter((l) => l.status === "Pending");
+    if (pendingListings.length === 0) {
+      toast.info("No pending listings available to optimize.");
+      return;
+    }
+    handleBatchOptimize(pendingListings.map(l => l.id));
   };
 
   const pendingCount = listings.filter((l) => l.status === "Pending").length;
@@ -164,11 +199,35 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
           <p className="text-sm font-semibold text-slate-600">Select active listings to optimize using Claude 4.6 Sonnet.</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 font-bold">Credits:</span>
-          <span className="text-xs text-slate-900 font-black bg-white border-2 border-slate-300 px-3 py-1.5 rounded-lg shadow-sm">
-            {credits.optimizations_used} / {credits.optimization_limit} used
-          </span>
+        <div className="flex items-center flex-wrap gap-2 sm:gap-3">
+          <button
+            onClick={handleFetchListings}
+            disabled={isFetching}
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-white hover:bg-slate-50 border-2 border-slate-300 text-slate-700 text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            {isFetching ? <Clock className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4 text-slate-500" />}
+            <span className="hidden sm:inline">Fetch Active Listings</span>
+            <span className="sm:hidden">Fetch</span>
+          </button>
+          
+          <button
+            onClick={handleOptimizeAll}
+            disabled={isLoading || pendingCount === 0}
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-slate-900/20"
+          >
+            <Zap className="w-4 h-4 text-yellow-400" />
+            <span className="hidden sm:inline">Optimize All</span>
+            <span className="sm:hidden">Opt All</span>
+          </button>
+
+          <div className="w-px h-6 bg-slate-300 mx-1 hidden sm:block"></div>
+
+          <div className="flex items-center gap-2">
+            <span className="hidden sm:inline text-xs text-slate-500 font-bold">Credits:</span>
+            <span className="text-xs text-slate-900 font-black bg-white border-2 border-slate-300 px-3 py-1.5 rounded-lg shadow-sm">
+              {credits.optimizations_used} / {credits.optimization_limit} <span className="hidden sm:inline">used</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -271,11 +330,18 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
           <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 shadow-md flex items-center justify-center text-slate-500 mx-auto">
             <Store className="w-8 h-8" />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-4">
             <h3 className="text-lg font-black font-heading text-slate-950">No Listings Found</h3>
-            <p className="text-xs text-slate-650 leading-relaxed font-semibold">
-              Your inventory is currently empty. Go back to the dashboard overview, connect your eBay store, and click &quot;Fetch Active Listings&quot; to import your inventory.
+            <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+              Your inventory is currently empty. Click the &quot;Fetch Active Listings&quot; button above to import your live inventory from eBay, or connect your store in the Overview tab first.
             </p>
+            <button
+              onClick={handleFetchListings}
+              disabled={isFetching}
+              className="mt-4 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold shadow-md transition-all disabled:opacity-50"
+            >
+              {isFetching ? "Fetching from eBay..." : "Fetch Active Listings Now"}
+            </button>
           </div>
         </div>
       ) : (
