@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClientServer } from "@/lib/supabase/server";
-import { Client } from "@upstash/qstash";
 import { processOptimizationJob } from "@/app/api/jobs/worker/route";
-
-const qstashToken = process.env.QSTASH_TOKEN || "placeholder-qstash-token";
-const qstashClient = new Client({ token: qstashToken });
 
 export async function POST(req: Request) {
   try {
@@ -56,12 +52,7 @@ export async function POST(req: Request) {
 
     if (updateErr) throw updateErr;
 
-    // Determine the dynamic worker callback destination based on host header
-    const protocol = req.headers.get("x-forwarded-proto") || "http";
-    const host = req.headers.get("host") || "localhost:3000";
-    const destinationUrl = `${protocol}://${host}/api/jobs/worker`;
-
-    console.log(`Queueing ${selectedCount} items (AutoPublish: ${autoPublish}). QStash callback: ${destinationUrl}`);
+    console.log(`Queueing ${selectedCount} items (AutoPublish: ${autoPublish}). Sync processing in-memory.`);
 
     // Update listings status to In Progress
     const { error: listingsUpdateErr } = await supabase
@@ -75,33 +66,22 @@ export async function POST(req: Request) {
 
     if (listingsUpdateErr) throw listingsUpdateErr;
 
-    // Publish each listing task to QStash or fallback to synchronous execution
-    if (qstashToken === "placeholder-qstash-token" || process.env.NODE_ENV === "development") {
-      console.warn(`[DEV] Mocking QStash publish. Invoking worker sequentially in memory...`);
-      for (const listingId of listingIds) {
-        // Check if autopilot is still enabled
-        const { data: currentUser } = await supabase.from('users').select('is_autopilot_enabled').eq('id', user.id).single();
-        if (currentUser && currentUser.is_autopilot_enabled === false) {
-          console.log(`Autopilot paused by user. Stopping queue at listing ${listingId}.`);
-          // Revert this specific listing to Pending since we didn't process it
-          await supabase.from('product_listings').update({ status: 'Pending' }).eq('id', listingId);
-          await supabase.from('system_logs').insert({ user_id: user.id, message: 'Queue processing paused by user.', level: 'info' });
-          break; // Stop the entire loop
-        }
-
-        // Process this item
-        const result = await processOptimizationJob(listingId, user.id, autoPublish);
-        if (result.error) {
-          console.error(`Background optimization failed for ${listingId}:`, result.error);
-        }
+    // Publish each listing task synchronously (bypassing Upstash webhook complexity to ensure reliability)
+    for (const listingId of listingIds) {
+      // Check if autopilot is still enabled
+      const { data: currentUser } = await supabase.from('users').select('is_autopilot_enabled').eq('id', user.id).single();
+      if (currentUser && currentUser.is_autopilot_enabled === false) {
+        console.log(`Autopilot paused by user. Stopping queue at listing ${listingId}.`);
+        // Revert this specific listing to Pending since we didn't process it
+        await supabase.from('product_listings').update({ status: 'Pending' }).eq('id', listingId);
+        await supabase.from('system_logs').insert({ user_id: user.id, message: 'Queue processing paused by user.', level: 'info' });
+        break; // Stop the entire loop
       }
-    } else {
-      // If using QStash, publish them sequentially (Note: QStash workers will need their own pause check logic inside the worker route)
-      for (const listingId of listingIds) {
-        await qstashClient.publishJSON({
-          url: destinationUrl,
-          body: { listingId, userId: user.id, autoPublish },
-        });
+
+      // Process this item
+      const result = await processOptimizationJob(listingId, user.id, autoPublish);
+      if (result.error) {
+        console.error(`Background optimization failed for ${listingId}:`, result.error);
       }
     }
 
