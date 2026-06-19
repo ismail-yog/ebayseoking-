@@ -78,6 +78,14 @@ export async function POST(req: Request) {
         break; // Stop the entire loop
       }
 
+      // Check if the user hard-refreshed or disconnected
+      if (req.signal.aborted) {
+        console.log(`Request aborted by client disconnect. Stopping queue at listing ${listingId}.`);
+        await supabase.from('product_listings').update({ status: 'Pending' }).eq('id', listingId);
+        await supabase.from('system_logs').insert({ user_id: user.id, message: 'Queue processing aborted due to page refresh.', level: 'error' });
+        break;
+      }
+
       // Process this item
       const result = await processOptimizationJob(listingId, user.id, autoPublish);
       if (result.error) {
