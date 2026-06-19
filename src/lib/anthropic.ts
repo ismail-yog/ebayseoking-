@@ -20,7 +20,7 @@ export async function optimizeListingWithAI(title: string, description: string):
 
   try {
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-3-5-sonnet-20240620",
       max_tokens: 2500,
       system: "You are an expert eBay SEO copywriter specializing in eBay's Cassini search algorithm. Your goal is to analyze listing information and optimize it for maximum search visibility, click-through rates (CTR), and sales conversion. You must output ONLY a valid, parseable JSON object matching the requested schema. Do NOT wrap the JSON in markdown code blocks (e.g. do not write ```json or ```). Do not include any conversational filler, preamble, or postamble.",
       messages: [
