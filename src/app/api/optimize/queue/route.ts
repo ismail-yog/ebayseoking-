@@ -76,30 +76,32 @@ export async function POST(req: Request) {
     if (listingsUpdateErr) throw listingsUpdateErr;
 
     // Publish each listing task to QStash or fallback to synchronous execution
-    const fallbackPromises = [];
-    for (const listingId of listingIds) {
-      if (qstashToken === "placeholder-qstash-token" || process.env.NODE_ENV === "development") {
-        console.warn(`[DEV] Mocking QStash publish for listing: ${listingId}. Invoking worker directly in memory...`);
-        fallbackPromises.push(processOptimizationJob(listingId, user.id, autoPublish));
-      } else {
+    if (qstashToken === "placeholder-qstash-token" || process.env.NODE_ENV === "development") {
+      console.warn(`[DEV] Mocking QStash publish. Invoking worker sequentially in memory...`);
+      for (const listingId of listingIds) {
+        // Check if autopilot is still enabled
+        const { data: currentUser } = await supabase.from('users').select('is_autopilot_enabled').eq('id', user.id).single();
+        if (currentUser && currentUser.is_autopilot_enabled === false) {
+          console.log(`Autopilot paused by user. Stopping queue at listing ${listingId}.`);
+          // Revert this specific listing to Pending since we didn't process it
+          await supabase.from('product_listings').update({ status: 'Pending' }).eq('id', listingId);
+          await supabase.from('system_logs').insert({ user_id: user.id, message: 'Queue processing paused by user.', level: 'info' });
+          break; // Stop the entire loop
+        }
+
+        // Process this item
+        const result = await processOptimizationJob(listingId, user.id, autoPublish);
+        if (result.error) {
+          console.error(`Background optimization failed for ${listingId}:`, result.error);
+        }
+      }
+    } else {
+      // If using QStash, publish them sequentially (Note: QStash workers will need their own pause check logic inside the worker route)
+      for (const listingId of listingIds) {
         await qstashClient.publishJSON({
           url: destinationUrl,
           body: { listingId, userId: user.id, autoPublish },
         });
-      }
-    }
-
-    if (fallbackPromises.length > 0) {
-      // In Vercel serverless environments, we await the promises so the container doesn't die.
-      // Calling the imported function directly bypasses network limits and 308 redirect bugs.
-      const results = await Promise.all(fallbackPromises);
-      
-      // Check if any failed
-      const hasErrors = results.some(r => r.error);
-      if (hasErrors) {
-        console.error("Some background optimizations failed:", results.filter(r => r.error));
-        // We still return success: true for the queue ingestion, since some might have succeeded.
-        // The DB state will accurately reflect individual failures.
       }
     }
 

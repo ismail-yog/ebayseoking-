@@ -16,6 +16,14 @@ const receiver = new Receiver({
 export async function processOptimizationJob(listingId: string, userId: string, autoPublish: boolean) {
   const supabase = createAdminClient();
 
+  const logToDB = async (message: string, level: 'info' | 'error' | 'success' = 'info') => {
+    try {
+      await supabase.from('system_logs').insert({ user_id: userId, message, level });
+    } catch (e) {
+      console.error("Failed to insert system log:", e);
+    }
+  };
+
   try {
     // 1. Fetch listing details from Database
     const { data: listing, error: listingErr } = await supabase
@@ -26,9 +34,11 @@ export async function processOptimizationJob(listingId: string, userId: string, 
       .single();
 
     if (listingErr || !listing) {
-      console.error(`Listing ${listingId} not found in DB`);
+      await logToDB(`Error: Listing ${listingId} not found in DB.`, 'error');
       return { error: "Listing not found", status: 404 };
     }
+
+    await logToDB(`Starting optimization for: ${listing.title.substring(0, 30)}...`, 'info');
 
     // 2. Fetch user store credentials and decrypt eBay token
     const { data: credentials, error: credsErr } = await supabase
@@ -39,7 +49,7 @@ export async function processOptimizationJob(listingId: string, userId: string, 
 
     let accessToken = "placeholder-token";
     if (credsErr) {
-      console.error("Error looking up store credentials:", credsErr);
+      await logToDB("Error looking up store credentials.", 'error');
     } else if (credentials) {
       try {
         const decrypted = decryptCredentials(
@@ -50,7 +60,7 @@ export async function processOptimizationJob(listingId: string, userId: string, 
         );
         accessToken = decrypted.accessToken;
       } catch (decryptErr) {
-        console.error("AES token decryption failed:", decryptErr);
+        await logToDB("Token decryption failed. Reconnect store credentials.", 'error');
         // Save failure to database listing
         await supabase
           .from("product_listings")
@@ -63,19 +73,21 @@ export async function processOptimizationJob(listingId: string, userId: string, 
         return { error: "Token decryption failed", status: 500 };
       }
     } else {
-      console.warn(`No store credentials found for user ${userId}. Proceeding with mock token.`);
+      await logToDB(`No store credentials found. Proceeding with mock token.`, 'info');
     }
 
     // 3. Call Claude AI to rewrite listing
+    await logToDB(`Sending data to Claude AI for Cassini SEO optimization...`, 'info');
     let optimizedTitle = "";
     let optimizedDesc = "";
     try {
       const result = await optimizeListingWithAI(listing.title, listing.description || "");
       optimizedTitle = result.optimized_title;
       optimizedDesc = result.optimized_description;
+      await logToDB(`Claude AI optimization successful!`, 'success');
     } catch (aiErr: unknown) {
       const msg = aiErr instanceof Error ? aiErr.message : "Anthropic optimization error";
-      console.error(`Claude AI optimization failed: ${msg}`);
+      await logToDB(`Claude AI Optimization failed: ${msg}`, 'error');
       await supabase
         .from("product_listings")
         .update({
@@ -91,6 +103,7 @@ export async function processOptimizationJob(listingId: string, userId: string, 
     let finalStatus = "Pending Review";
     
     if (autoPublish) {
+      await logToDB(`Syncing optimized listing back to eBay...`, 'info');
       const revision = await reviseEbayFixedPriceItem(
         listing.ebay_item_id,
         optimizedTitle,
@@ -99,7 +112,7 @@ export async function processOptimizationJob(listingId: string, userId: string, 
       );
 
       if (!revision.success) {
-        console.error(`eBay revision failed: ${revision.error}`);
+        await logToDB(`eBay revision failed: ${revision.error}`, 'error');
         await supabase
           .from("product_listings")
           .update({
@@ -112,6 +125,7 @@ export async function processOptimizationJob(listingId: string, userId: string, 
       }
       
       finalStatus = "Optimized";
+      await logToDB(`eBay sync successful! Status updated to Optimized.`, 'success');
     }
 
     // 5. Update Database listing status
@@ -128,15 +142,15 @@ export async function processOptimizationJob(listingId: string, userId: string, 
 
     if (finalUpdateErr) throw finalUpdateErr;
 
-    console.log(`Successfully completed background AI optimization for listing ${listingId} (Auto-Publish: ${autoPublish})`);
     return { success: true, autoPublish };
 
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Fatal worker execution error";
-    console.error(`Fatal background worker error: ${errorMsg}`);
     
     // Attempt to mark listing as failed
     try {
+      const logToDB = async (message: string) => supabase.from('system_logs').insert({ user_id: userId, message, level: 'error' });
+      await logToDB(`Fatal background worker error: ${errorMsg}`);
       await supabase
         .from("product_listings")
         .update({

@@ -54,30 +54,73 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
     setCredits(profile);
   }, [initialListings, profile]);
 
-  // Simulated Autopilot Logs
-  const [logs, setLogs] = useState<string[]>([
-    "[02:40 AM] Scheduler: Initializing background cron cycle.",
-    "[02:41 AM] Supabase: Checking users with autopilot enabled.",
-    "[02:42 AM] eBay API: Fetching active inventory details...",
-    "[02:45 AM] DB: Synced 12 items, 0 duplicate keys encountered."
-  ]);
+  const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
+  const [logs, setLogs] = useState<{message: string, created_at: string, level: string}[]>([]);
 
+  // Fetch initial autopilot status
   useEffect(() => {
-    const interval = setInterval(() => {
-      const phrases = [
-        "Claude 4.6 API: Optimizing title details for Cassini search rank...",
-        "eBay Trading API: Pushing title revisions for item ID " + Math.floor(Math.random() * 100000000000),
-        "Upstash QStash: Queueing optimizations in worker pipeline.",
-        "System: Completed cron sync loop. All systems operational.",
-        "Auth: Re-validating OAuth access tokens with eBay Sandbox key."
-      ];
-      const time = new Date().toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit", second: "2-digit" });
-      const newLog = `[${time}] ${phrases[Math.floor(Math.random() * phrases.length)]}`;
-      setLogs((prev) => [...prev.slice(-4), newLog]);
-    }, 12000);
+    const fetchAutopilotStatus = async () => {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data } = await supabase.from('users').select('is_autopilot_enabled').eq('id', user.id).single();
+          if (data) setIsAutopilotEnabled(!!data.is_autopilot_enabled);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchAutopilotStatus();
+  }, []);
 
+  // Poll system logs every 3 seconds
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    const fetchLogs = async () => {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data } = await supabase
+          .from('system_logs')
+          .select('message, created_at, level')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (data) {
+          setLogs(data.reverse());
+        }
+      } catch (err) {
+        console.error("Failed to fetch logs:", err);
+      }
+    };
+
+    fetchLogs();
+    interval = setInterval(fetchLogs, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  const toggleAutopilot = async () => {
+    const newState = !isAutopilotEnabled;
+    setIsAutopilotEnabled(newState);
+    toast.info(newState ? "Autopilot Resumed!" : "Autopilot Paused. Queue will halt.");
+    try {
+      await fetch('/api/user/autopilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_autopilot_enabled: newState })
+      });
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to update autopilot status");
+      setIsAutopilotEnabled(!newState); // revert on fail
+    }
+  };
 
   // Filter listings based on search
   const filteredListings = listings.filter((l) =>
@@ -263,6 +306,17 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
           </button>
           
           <button
+            onClick={toggleAutopilot}
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border-2 text-xs font-bold transition-all shadow-sm ${
+              isAutopilotEnabled
+                ? "bg-white border-red-200 text-red-600 hover:bg-red-50"
+                : "bg-white border-green-200 text-green-600 hover:bg-green-50"
+            }`}
+          >
+            {isAutopilotEnabled ? "Pause Autopilot" : "Resume Autopilot"}
+          </button>
+          
+          <button
             onClick={handleOptimizeAll}
             disabled={isLoading || pendingCount === 0}
             className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-slate-900/20"
@@ -367,12 +421,17 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             </div>
             
-            <div className="flex-1 my-3 bg-slate-950 rounded-lg p-3.5 font-mono text-[10px] text-green-400 leading-relaxed overflow-y-auto max-h-[140px] shadow-inner space-y-1.5 border border-slate-900">
-              {logs.map((log, idx) => (
-                <div key={idx} className="truncate">
-                  {log}
-                </div>
-              ))}
+            <div className="flex-1 my-3 bg-slate-950 rounded-lg p-3.5 font-mono text-[10px] leading-relaxed overflow-y-auto max-h-[140px] shadow-inner space-y-1.5 border border-slate-900">
+              {logs.length === 0 && <div className="text-slate-600">Waiting for system events...</div>}
+              {logs.map((log, idx) => {
+                const time = new Date(log.created_at).toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                const color = log.level === 'error' ? 'text-red-400' : log.level === 'success' ? 'text-green-400' : 'text-slate-300';
+                return (
+                  <div key={idx} className={`truncate ${color}`}>
+                    <span className="text-slate-600">[{time}]</span> {log.message}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="flex items-center justify-between text-[9px] text-slate-400 border-t border-slate-850 pt-2 font-bold uppercase tracking-wider">
