@@ -157,9 +157,9 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
 
     if (selectedCount === 0) return;
 
-    if (selectedCount + credits.optimizations_used > credits.optimization_limit) {
+    if (selectedCount > remainingCredits) {
       toast.error(
-        `Insufficient Credits! You selected ${selectedCount} items but have only ${remainingCredits} credits remaining. Please upgrade your plan.`,
+        `Insufficient Credits! You selected ${selectedCount} items but have only ${remainingCredits} credits remaining.`,
         { duration: 5000 }
       );
       return;
@@ -168,44 +168,53 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
     setIsLoading(true);
     toast.loading(`Queueing ${selectedCount} listing optimizations...`);
 
-    try {
-      const res = await fetch("/api/optimize/queue", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingIds: targetIds, autoPublish: autoPublishMode }),
-      });
+    let processedCount = 0;
 
-      toast.dismiss();
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Queue request failed");
+    for (const listingId of targetIds) {
+      // Respect pause controller
+      if (!isAutopilotEnabled) {
+        toast.info("Autopilot paused. Stopping bulk queue.");
+        break;
       }
 
-      toast.success(`Successfully queued ${selectedCount} optimizations in background!`);
-      
-      // Dynamically update UI status to In Progress
-      setListings((prev) =>
-        prev.map((l) =>
-          targetIds.includes(l.id) ? { ...l, status: "In Progress" } : l
-        )
-      );
+      try {
+        const res = await fetch("/api/optimize/single", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ listingId, autoPublish: autoPublishMode }),
+        });
 
-      // Dynamically update credits counter
-      setCredits((prev) => ({
-        ...prev,
-        optimizations_used: prev.optimizations_used + selectedCount,
-      }));
+        if (!res.ok) {
+          const errData = await res.json();
+          console.error(`Failed to optimize ${listingId}:`, errData);
+          continue;
+        }
 
-      if (!idsToOptimize) setSelectedIds([]);
-      
-      // Refresh the page data to get the actual DB status (which might be 'Optimized' now if fallback was used)
-      router.refresh();
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to start optimizations");
-    } finally {
-      setIsLoading(false);
+        processedCount++;
+        
+        // Dynamically update UI status to In Progress
+        setListings((prev) =>
+          prev.map((l) =>
+            l.id === listingId ? { ...l, status: "In Progress" } : l
+          )
+        );
+
+        // Dynamically update credits counter
+        setCredits((prev) => ({
+          ...prev,
+          optimizations_used: prev.optimizations_used + 1,
+        }));
+        
+      } catch (err) {
+        console.error("Queue request failed for " + listingId, err);
+      }
     }
+
+    toast.dismiss();
+    toast.success(`Successfully processed ${processedCount} optimizations!`);
+
+    if (!idsToOptimize) setSelectedIds([]);
+    setIsLoading(false);
   };
 
   const handleFetchListings = async () => {
