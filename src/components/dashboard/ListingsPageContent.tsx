@@ -150,8 +150,8 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
     setSelectedIds(idsToSelect);
   };
 
-  const handleBatchOptimize = async (idsToOptimize?: string[]) => {
-    const targetIds = idsToOptimize || selectedIds;
+  const handleBatchOptimize = async (idsToOptimize?: string[] | unknown) => {
+    const targetIds = Array.isArray(idsToOptimize) ? idsToOptimize : selectedIds;
     const selectedCount = targetIds.length;
     const remainingCredits = credits.optimization_limit - credits.optimizations_used;
 
@@ -742,11 +742,10 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
         </div>
       )}
 
-      {/* Floating Action Bar */}
       <FloatingActionBar
         selectedCount={selectedIds.length}
         onClear={() => setSelectedIds([])}
-        onOptimize={handleBatchOptimize}
+        onOptimize={() => handleBatchOptimize()}
         isLoading={isLoading}
       />
 
