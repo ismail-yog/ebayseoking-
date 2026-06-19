@@ -77,7 +77,6 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
 
   // Poll system logs every 3 seconds
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
     const fetchLogs = async () => {
       try {
         const { createClient } = await import("@/lib/supabase/client");
@@ -101,7 +100,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
     };
 
     fetchLogs();
-    interval = setInterval(fetchLogs, 3000);
+    const interval = setInterval(fetchLogs, 3000);
     return () => clearInterval(interval);
   }, []);
 
