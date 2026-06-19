@@ -40,7 +40,7 @@ Strict SEO Optimization Guidelines:
 - READABILITY: Ensure the title makes logical sense to a human shopper, not just a list of keywords.
 
 2. Description Optimization (Responsive HTML / eBay Policy Compliance):
-- COMPLIANCE: Do not include active content, JavaScript, external stylesheets, or iframes.
+- COMPLIANCE: Do not include active content, JavaScript, external stylesheets, or iframes. CRITICAL: Do NOT include ANY contact information, email addresses, phone numbers, external website links, or phrases like "Contact us", "Visit our store", or "Message us for details". eBay explicitly bans these and will block the listing.
 - MOBILE RESPONSIVE: Wrap content in a single container div (max-width: 100% or 800px; margin: 0 auto; padding: 15px; font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; box-sizing: border-box;).
 - MODERN STYLING: Use inline CSS styles for a premium, clean layout. Use a slate/indigo palette (background: #ffffff; secondary text: #334155; muted text: #64748b; primary accent: #4f46e5; border-color: #e2e8f0;).
 - STRUCTURED LAYOUT:
