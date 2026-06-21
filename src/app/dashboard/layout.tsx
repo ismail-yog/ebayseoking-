@@ -89,13 +89,13 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="relative h-screen overflow-hidden flex bg-bg-primary font-sans">
+    <div className="relative min-h-screen bg-bg-primary font-sans">
       {/* Subtle decorative ambient blobs */}
       <div className="absolute top-[10%] left-[5%] w-[30%] h-[30%] bg-primary/[0.04] rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-secondary/[0.04] rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Light-Mode Sidebar */}
-      <aside className="hidden lg:flex w-[260px] border-r-2 border-slate-200 bg-white flex-col z-20 shadow-sm shrink-0 h-full overflow-hidden">
+      {/* Light-Mode Sidebar — Fixed to viewport */}
+      <aside className="hidden lg:flex w-[260px] border-r-2 border-slate-200 bg-white flex-col z-20 shadow-sm fixed top-0 left-0 bottom-0 overflow-y-auto">
         {/* Sidebar Header */}
         <div className="h-[72px] flex items-center px-6 border-b border-slate-200">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
@@ -201,8 +201,8 @@ export default async function DashboardLayout({
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main Content Area — offset by sidebar width */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-[260px]">
         {/* Top Header Bar */}
         <header className="h-[72px] border-b-2 border-slate-200 bg-white px-6 lg:px-8 flex items-center justify-between z-10 shadow-sm">
           <div>
