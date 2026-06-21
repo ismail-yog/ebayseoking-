@@ -95,7 +95,7 @@ export default async function DashboardLayout({
       <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-secondary/[0.04] rounded-full blur-[100px] pointer-events-none" />
 
       {/* Light-Mode Sidebar */}
-      <aside className="hidden lg:flex w-[260px] border-r-2 border-slate-200 bg-white flex-col z-20 shadow-sm shrink-0 h-screen sticky top-0">
+      <aside className="hidden lg:flex w-[260px] border-r-2 border-slate-200 bg-white flex-col z-20 shadow-sm shrink-0 h-full overflow-hidden">
         {/* Sidebar Header */}
         <div className="h-[72px] flex items-center px-6 border-b border-slate-200">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
