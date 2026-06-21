@@ -177,6 +177,13 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
         break;
       }
 
+      // Dynamically update UI status to In Progress
+      setListings((prev) =>
+        prev.map((l) =>
+          l.id === listingId ? { ...l, status: "In Progress" } : l
+        )
+      );
+
       try {
         const res = await fetch("/api/optimize/single", {
           method: "POST",
@@ -187,17 +194,31 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
         if (!res.ok) {
           const errData = await res.json();
           console.error(`Failed to optimize ${listingId}:`, errData);
+          setListings((prev) =>
+            prev.map((l) =>
+              l.id === listingId ? { ...l, status: "Failed", error_message: errData.error || "Optimization failed" } : l
+            )
+          );
           continue;
         }
 
         processedCount++;
+        const data = await res.json();
         
-        // Dynamically update UI status to In Progress
-        setListings((prev) =>
-          prev.map((l) =>
-            l.id === listingId ? { ...l, status: "In Progress" } : l
-          )
-        );
+        // Dynamically update UI with final optimized listing data
+        if (data.listing) {
+          setListings((prev) =>
+            prev.map((l) =>
+              l.id === listingId ? data.listing : l
+            )
+          );
+        } else {
+          setListings((prev) =>
+            prev.map((l) =>
+              l.id === listingId ? { ...l, status: autoPublishMode ? "Optimized" : "Pending Review" } : l
+            )
+          );
+        }
 
         // Dynamically update credits counter
         setCredits((prev) => ({
@@ -207,6 +228,11 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
         
       } catch (err) {
         console.error("Queue request failed for " + listingId, err);
+        setListings((prev) =>
+          prev.map((l) =>
+            l.id === listingId ? { ...l, status: "Failed", error_message: "Network or queue request failed" } : l
+          )
+        );
       }
     }
 

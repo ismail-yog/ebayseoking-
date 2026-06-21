@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClientServer } from "@/lib/supabase/server";
 import { decryptCredentials } from "@/lib/encryption";
+import { getItemDescription } from "@/lib/ebay";
 
 export async function POST() {
   try {
@@ -59,8 +60,14 @@ export async function POST() {
           ? "https://api.ebay.com/ws/api.dll"
           : "https://api.sandbox.ebay.com/ws/api.dll";
 
-        // 2. Query eBay XML Trading API (GetMyeBaySelling)
-        const xmlBody = `<?xml version="1.0" encoding="utf-8"?>
+        const allItemsXml: string[] = [];
+        let page = 1;
+        let totalPages = 1;
+
+        do {
+          console.log(`Fetching active items page ${page} of ${totalPages} from eBay...`);
+          // 2. Query eBay XML Trading API (GetMyeBaySelling)
+          const xmlBody = `<?xml version="1.0" encoding="utf-8"?>
 <GetMyeBaySellingRequest xmlns="urn:ebay:apis:eBLBaseComponents">
   <RequesterCredentials>
     <eBayAuthToken>${accessToken}</eBayAuthToken>
@@ -68,58 +75,109 @@ export async function POST() {
   <ActiveList>
     <Sort>TimeLeft</Sort>
     <Pagination>
-      <EntriesPerPage>50</EntriesPerPage>
-      <PageNumber>1</PageNumber>
+      <EntriesPerPage>200</EntriesPerPage>
+      <PageNumber>${page}</PageNumber>
     </Pagination>
   </ActiveList>
   <DetailLevel>ReturnAll</DetailLevel>
 </GetMyeBaySellingRequest>`;
 
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/xml",
-            "X-EBAY-API-SITEID": "0", // 0 is US site
-            "X-EBAY-API-COMPATIBILITY-LEVEL": "967",
-            "X-EBAY-API-CALL-NAME": "GetMyeBaySelling",
-            "X-EBAY-API-APP-NAME": clientId,
-            "X-EBAY-API-DEV-NAME": "",
-            "X-EBAY-API-CERT-NAME": clientSecret,
-          },
-          body: xmlBody,
-        });
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/xml",
+              "X-EBAY-API-SITEID": "0", // 0 is US site
+              "X-EBAY-API-COMPATIBILITY-LEVEL": "967",
+              "X-EBAY-API-CALL-NAME": "GetMyeBaySelling",
+              "X-EBAY-API-APP-NAME": clientId,
+              "X-EBAY-API-DEV-NAME": "",
+              "X-EBAY-API-CERT-NAME": clientSecret,
+            },
+            body: xmlBody,
+          });
 
-        if (response.ok) {
+          if (!response.ok) {
+            console.error(`eBay API request failed on page ${page}: ${response.status}`);
+            break;
+          }
+
           const xmlResponse = await response.text();
           
-          // Regex-based lightweight XML parsing
-          const matches = xmlResponse.match(/<Item>([\s\S]*?)<\/Item>/g);
-          
-          if (matches && matches.length > 0) {
-            itemsToInsert = matches.map((itemXml) => {
-              const ebay_item_id = itemXml.match(/<ItemID>(.*?)<\/ItemID>/)?.[1] || "";
-              const title = itemXml.match(/<Title>(.*?)<\/Title>/)?.[1] || "";
-              const priceVal = itemXml.match(/<CurrentPrice[^>]*>(.*?)<\/CurrentPrice>/)?.[1] || "0.00";
-              const currency = itemXml.match(/<CurrentPrice currencyID="(.*?)">/)?.[1] || "USD";
-              const imageUrl = itemXml.match(/<GalleryURL>(.*?)<\/GalleryURL>/)?.[1] || "";
-
-              return {
-                ebay_item_id,
-                title,
-                description: "eBay active listing. Click Optimize to generate Claude SEO copy.",
-                price: parseFloat(priceVal) || 0.0,
-                currency,
-                image_urls: imageUrl ? [imageUrl] : [],
-                status: "Pending",
-              };
-            });
-            isLiveSync = true;
-            console.log(`Live synced ${itemsToInsert.length} active items from eBay.`);
-          } else {
-            console.warn("No active items returned from eBay GetMyeBaySelling.");
+          if (page === 1) {
+            const totalPagesMatch = xmlResponse.match(/<TotalNumberOfPages>(\d+)<\/TotalNumberOfPages>/);
+            if (totalPagesMatch) {
+              totalPages = parseInt(totalPagesMatch[1]);
+            }
           }
+
+          const matches = xmlResponse.match(/<Item>([\s\S]*?)<\/Item>/g);
+          if (matches && matches.length > 0) {
+            allItemsXml.push(...matches);
+          } else {
+            console.warn(`No active items returned from page ${page}.`);
+            break;
+          }
+
+          page++;
+        } while (page <= totalPages);
+
+        if (allItemsXml.length > 0) {
+          const rawItems = allItemsXml.map((itemXml) => {
+            const ebay_item_id = itemXml.match(/<ItemID>(.*?)<\/ItemID>/)?.[1] || "";
+            const title = itemXml.match(/<Title>(.*?)<\/Title>/)?.[1] || "";
+            const priceVal = itemXml.match(/<CurrentPrice[^>]*>(.*?)<\/CurrentPrice>/)?.[1] || "0.00";
+            const currency = itemXml.match(/<CurrentPrice currencyID="(.*?)">/)?.[1] || "USD";
+            const imageUrl = itemXml.match(/<GalleryURL>(.*?)<\/GalleryURL>/)?.[1] || "";
+
+            return {
+              ebay_item_id,
+              title,
+              description: "",
+              price: parseFloat(priceVal) || 0.0,
+              currency,
+              image_urls: imageUrl ? [imageUrl] : [],
+              status: "Pending",
+            };
+          });
+
+          // Fetch existing listings from DB to reuse descriptions and preserve statuses
+          const { data: existingListings } = await supabase
+            .from("product_listings")
+            .select("ebay_item_id, description, status, optimized_title, optimized_description")
+            .eq("user_id", user.id);
+
+          const existingMap = new Map(existingListings?.map(l => [l.ebay_item_id, l]) || []);
+
+          // Fetch descriptions in batches of 10 for new items only
+          console.log(`Fetching descriptions for ${rawItems.length} items...`);
+          const batchSize = 10;
+          itemsToInsert = [];
+
+          for (let i = 0; i < rawItems.length; i += batchSize) {
+            const chunk = rawItems.slice(i, i + batchSize);
+            const chunkRes = await Promise.all(
+              chunk.map(async (item) => {
+                const existing = existingMap.get(item.ebay_item_id);
+                if (existing && existing.description) {
+                  return { ...item, description: existing.description };
+                }
+
+                try {
+                  const desc = await getItemDescription(item.ebay_item_id, accessToken);
+                  return { ...item, description: desc || "eBay active listing." };
+                } catch (err) {
+                  console.error(`Failed to fetch description for ${item.ebay_item_id}:`, err);
+                  return { ...item, description: "eBay active listing." };
+                }
+              })
+            );
+            itemsToInsert.push(...chunkRes);
+          }
+
+          isLiveSync = true;
+          console.log(`Live synced ${itemsToInsert.length} active items from eBay.`);
         } else {
-          console.error(`eBay API request failed: ${response.status}`);
+          console.warn("No active items returned from eBay GetMyeBaySelling.");
         }
       } catch (syncErr) {
         console.error("Error during live eBay listing sync:", syncErr);
@@ -132,18 +190,31 @@ export async function POST() {
       return NextResponse.json({ success: true, count: 0, live: isLiveSync });
     }
 
+    // Fetch existing listings from DB to preserve statuses (again just in case map changed)
+    const { data: existingListings } = await supabase
+      .from("product_listings")
+      .select("ebay_item_id, status, optimized_title, optimized_description")
+      .eq("user_id", user.id);
+
+    const existingMap = new Map(existingListings?.map(l => [l.ebay_item_id, l]) || []);
+
     // Format items with user_id
-    const listings = itemsToInsert.map((item) => ({
-      user_id: user.id,
-      ebay_item_id: item.ebay_item_id,
-      title: item.title,
-      description: item.description,
-      price: item.price,
-      currency: item.currency,
-      image_urls: item.image_urls,
-      status: item.status,
-      updated_at: new Date().toISOString(),
-    }));
+    const listings = itemsToInsert.map((item) => {
+      const existing = existingMap.get(item.ebay_item_id);
+      return {
+        user_id: user.id,
+        ebay_item_id: item.ebay_item_id,
+        title: item.title,
+        description: item.description,
+        price: item.price,
+        currency: item.currency,
+        image_urls: item.image_urls,
+        status: existing ? existing.status : item.status,
+        optimized_title: existing ? existing.optimized_title : null,
+        optimized_description: existing ? existing.optimized_description : null,
+        updated_at: new Date().toISOString(),
+      };
+    });
 
     // Upsert listings to prevent duplicate key errors
     const { error: upsertErr } = await supabase

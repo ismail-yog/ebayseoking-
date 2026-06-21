@@ -1,17 +1,8 @@
 import { NextResponse } from "next/server";
-import { Receiver } from "@upstash/qstash";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { decryptCredentials } from "@/lib/encryption";
 import { optimizeListingWithAI } from "@/lib/anthropic";
 import { reviseEbayFixedPriceItem } from "@/lib/ebay";
-
-const currentKey = process.env.QSTASH_CURRENT_SIGNING_KEY || "placeholder-signing-key";
-const nextKey = process.env.QSTASH_NEXT_SIGNING_KEY || "placeholder-next-signing-key";
-
-const receiver = new Receiver({
-  currentSigningKey: currentKey,
-  nextSigningKey: nextKey,
-});
 
 export async function processOptimizationJob(listingId: string, userId: string, autoPublish: boolean) {
   const supabase = createAdminClient();
@@ -47,43 +38,56 @@ export async function processOptimizationJob(listingId: string, userId: string, 
       .eq("user_id", userId)
       .maybeSingle();
 
-    let accessToken = "placeholder-token";
-    if (credsErr) {
-      await logToDB("Error looking up store credentials.", 'error');
-    } else if (credentials) {
-      try {
-        const decrypted = decryptCredentials(
-          credentials.encrypted_access_token,
-          credentials.encrypted_refresh_token,
-          credentials.iv,
-          credentials.auth_tag
-        );
-        accessToken = decrypted.accessToken;
-      } catch (decryptErr) {
-        await logToDB("Token decryption failed. Reconnect store credentials.", 'error');
-        // Save failure to database listing
-        await supabase
-          .from("product_listings")
-          .update({
-            status: "Failed",
-            error_message: "Failed to decrypt eBay access token. Reconnect store credentials.",
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", listingId);
-        return { error: "Token decryption failed", status: 500 };
-      }
-    } else {
-      await logToDB(`No store credentials found. Proceeding with mock token.`, 'info');
+    if (credsErr || !credentials) {
+      const errorMsg = credsErr ? credsErr.message : "Store credentials not found. Please connect your eBay store.";
+      await logToDB(`Error: ${errorMsg}`, 'error');
+      await supabase
+        .from("product_listings")
+        .update({
+          status: "Failed",
+          error_message: errorMsg,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", listingId);
+      return { error: errorMsg, status: 400 };
+    }
+
+    let accessToken = "";
+    try {
+      const decrypted = decryptCredentials(
+        credentials.encrypted_access_token,
+        credentials.encrypted_refresh_token,
+        credentials.iv,
+        credentials.auth_tag
+      );
+      accessToken = decrypted.accessToken;
+    } catch {
+      await logToDB("Token decryption failed. Reconnect store credentials.", 'error');
+      await supabase
+        .from("product_listings")
+        .update({
+          status: "Failed",
+          error_message: "Failed to decrypt eBay access token. Reconnect store credentials.",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", listingId);
+      return { error: "Token decryption failed", status: 500 };
     }
 
     // 3. Call Claude AI to rewrite listing
     await logToDB(`Sending data to Claude AI for Cassini SEO optimization...`, 'info');
     let optimizedTitle = "";
     let optimizedDesc = "";
+    let itemSpecifics = {};
+    let titleCharacterCount = null;
+
     try {
-      const result = await optimizeListingWithAI(listing.title, listing.description || "");
+      const protectedElements = listing.protected_elements || listing.sku || "";
+      const result = await optimizeListingWithAI(listing.title, listing.description || "", protectedElements);
       optimizedTitle = result.optimized_title;
       optimizedDesc = result.optimized_description;
+      itemSpecifics = result.item_specifics || {};
+      titleCharacterCount = result.title_character_count || null;
       await logToDB(`Claude AI optimization successful!`, 'success');
     } catch (aiErr: unknown) {
       const msg = aiErr instanceof Error ? aiErr.message : "Anthropic optimization error";
@@ -135,6 +139,8 @@ export async function processOptimizationJob(listingId: string, userId: string, 
         status: finalStatus,
         optimized_title: optimizedTitle,
         optimized_description: optimizedDesc,
+        item_specifics: itemSpecifics,
+        title_character_count: titleCharacterCount,
         error_message: null,
         updated_at: new Date().toISOString(),
       })
@@ -168,48 +174,21 @@ export async function processOptimizationJob(listingId: string, userId: string, 
 }
 
 export async function POST(req: Request) {
-  const rawBody = await req.text();
-  const signature = req.headers.get("upstash-signature") || "";
-  const isMock = req.headers.get("x-qstash-signature-mock") === "true";
-
-  // Signature verification logic
-  let isValid = false;
-
   try {
-    if (isMock || currentKey === "placeholder-signing-key" || process.env.NODE_ENV === "development") {
-      console.warn("Dev mode detected or placeholder QStash keys. Bypassing webhook signature verification.");
-      isValid = true;
-    } else {
-      isValid = await receiver.verify({
-        signature,
-        body: rawBody,
-      });
+    const payload = await req.json();
+    const { listingId, userId, autoPublish = true } = payload;
+    
+    if (!listingId || !userId) {
+      return NextResponse.json({ error: "Missing listingId or userId" }, { status: 400 });
     }
+
+    const result = await processOptimizationJob(listingId, userId, autoPublish);
+    if (result.error) {
+      return NextResponse.json({ error: result.error }, { status: result.status || 500 });
+    }
+    
+    return NextResponse.json(result);
   } catch (err: unknown) {
-    console.error("QStash signature verification failed:", err);
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Malformed body" }, { status: 400 });
   }
-
-  if (!isValid) {
-    return NextResponse.json({ error: "Invalid QStash Signature" }, { status: 401 });
-  }
-
-  // Parse payload
-  let payload: { listingId: string; userId: string; autoPublish?: boolean };
-  try {
-    payload = JSON.parse(rawBody);
-  } catch {
-    return NextResponse.json({ error: "Malformed JSON body" }, { status: 400 });
-  }
-
-  const { listingId, userId, autoPublish = true } = payload;
-  if (!listingId || !userId) {
-    return NextResponse.json({ error: "Missing listingId or userId" }, { status: 400 });
-  }
-
-  const result = await processOptimizationJob(listingId, userId, autoPublish);
-  if (result.error) {
-    return NextResponse.json({ error: result.error }, { status: result.status || 500 });
-  }
-  
-  return NextResponse.json(result);
 }

@@ -69,7 +69,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    // Fetch the updated listing to return to client
+    const { data: updatedListing } = await supabase
+      .from("product_listings")
+      .select("*")
+      .eq("id", listingId)
+      .single();
+
+    return NextResponse.json({ success: true, listing: updatedListing });
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Internal queueing error";
     console.error(`Queue API error: ${errorMsg}`);
