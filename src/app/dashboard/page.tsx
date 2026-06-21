@@ -35,7 +35,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     sync_interval: profile.sync_interval || "24h",
   } : {
     plan_type: "free",
-    optimization_limit: 10,
+    optimization_limit: 50,
     optimizations_used: 0,
     plan_expires_at: null,
     is_autopilot_enabled: false,

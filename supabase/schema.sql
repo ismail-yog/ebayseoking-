@@ -11,7 +11,7 @@ create table if not exists public.users (
     created_at timestamp with time zone default now() not null,
     updated_at timestamp with time zone default now() not null,
     plan_type text default 'free' check (plan_type in ('free', 'basic', 'pro', 'business', 'enterprise')),
-    optimization_limit integer default 10,
+    optimization_limit integer default 50,
     optimizations_used integer default 0,
     plan_expires_at timestamp with time zone,
     stripe_customer_id text,

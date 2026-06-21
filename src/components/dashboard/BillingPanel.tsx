@@ -59,46 +59,79 @@ export function BillingPanel({ profile }: BillingPanelProps) {
 
   const plans = [
     {
-      id: "basic",
-      name: "Basic",
-      price: "$19",
-      limit: "100",
+      id: "starter",
+      name: "Starter",
+      price: "$39",
+      limit: "200",
+      perCredit: "$0.20",
       color: "from-primary/10 to-primary/[0.01]",
       borderColor: "border-primary/30",
       features: [
-        "100 listing optimizations",
-        "Claude 4.6 SEO engine",
-        "XML eBay Trading Sync",
-        "1 month validity",
+        "200 listing optimizations",
+        "Claude AI SEO engine",
+        "Cassini keyword front-loading",
+        "Item specifics extraction",
       ],
     },
     {
-      id: "pro",
-      name: "Pro",
-      price: "$49",
-      limit: "1,000",
+      id: "growth",
+      name: "Growth",
+      price: "$65",
+      limit: "350",
+      perCredit: "$0.19",
       color: "from-secondary/15 to-secondary/[0.01]",
       borderColor: "border-secondary/40",
       features: [
-        "1,000 listing optimizations",
-        "Claude 4.6 advanced copywriting",
+        "350 listing optimizations",
+        "Semantic keyword injection",
+        "Protected element preservation",
         "Batch queue processing",
-        "1 month validity",
+      ],
+    },
+    {
+      id: "power",
+      name: "Power Seller",
+      price: "$79",
+      limit: "500",
+      perCredit: "$0.16",
+      color: "from-accent-cyan/15 to-accent-cyan/[0.01]",
+      borderColor: "border-accent-cyan/30",
+      features: [
+        "500 listing optimizations",
+        "Full HTML description rewrite",
+        "Mobile-responsive layouts",
+        "Priority queue processing",
       ],
       popular: true,
     },
     {
-      id: "business",
-      name: "Business",
-      price: "$119",
+      id: "agency",
+      name: "Agency",
+      price: "$149",
+      limit: "1,000",
+      perCredit: "$0.15",
+      color: "from-purple-500/15 to-purple-500/[0.01]",
+      borderColor: "border-purple-400/30",
+      features: [
+        "1,000 listing optimizations",
+        "Multi-store support",
+        "Advanced Cassini analytics",
+        "Bulk optimize all listings",
+      ],
+    },
+    {
+      id: "enterprise",
+      name: "Enterprise",
+      price: "$399",
       limit: "3,000",
-      color: "from-accent-cyan/15 to-accent-cyan/[0.01]",
-      borderColor: "border-accent-cyan/30",
+      perCredit: "$0.13",
+      color: "from-amber-500/15 to-amber-500/[0.01]",
+      borderColor: "border-amber-400/30",
       features: [
         "3,000 listing optimizations",
-        "Cassini ranking analyzer",
-        "Priority queue processing",
-        "1 month validity",
+        "Dedicated priority support",
+        "Full store SEO overhaul",
+        "Maximum ROI per credit",
       ],
     },
   ];
@@ -160,11 +193,11 @@ export function BillingPanel({ profile }: BillingPanelProps) {
       {/* Plans Section */}
       <div className="space-y-4">
         <div className="text-left">
-          <h2 className="text-lg font-black font-heading text-slate-950">Upgrade Credits & Plans</h2>
-          <p className="text-xs font-semibold text-slate-550">Choose a package that fits your inventory scale. Key activations last for 30 days.</p>
+          <h2 className="text-lg font-black font-heading text-slate-950">Buy Optimization Credits</h2>
+          <p className="text-xs font-semibold text-slate-550">1 Credit = 1 Fully Optimized Listing. Choose a pack that fits your store size.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
           {plans.map((plan) => (
             <div
               key={plan.id}
@@ -181,8 +214,10 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                   <h3 className="text-base font-black font-heading text-slate-950 capitalize">{plan.name} Plan</h3>
                   <div className="flex items-baseline gap-1 mt-2">
                     <span className="text-3xl font-black text-slate-950 font-heading">{plan.price}</span>
-                    <span className="text-[10px] text-slate-500 font-bold">/ month</span>
                   </div>
+                  {plan.perCredit && (
+                    <span className="text-[10px] text-slate-500 font-bold mt-1 block">{plan.perCredit} per listing</span>
+                  )}
                 </div>
 
                 <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-center shadow-inner font-bold text-slate-700">

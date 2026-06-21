@@ -28,7 +28,7 @@ export default async function ListingsPage() {
   return (
     <ListingsPageContent 
       initialListings={listings || []} 
-      profile={profile || { optimizations_used: 0, optimization_limit: 10 }} 
+      profile={profile || { optimizations_used: 0, optimization_limit: 50 }} 
     />
   );
 }

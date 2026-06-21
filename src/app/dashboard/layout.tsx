@@ -52,7 +52,7 @@ export default async function DashboardLayout({
     full_name: user.user_metadata?.full_name || "SyncSell Merchant",
     email: user.email || "",
     plan_type: "free",
-    optimization_limit: 10,
+    optimization_limit: 50,
     optimizations_used: 0,
     plan_expires_at: null,
   };
@@ -76,26 +76,26 @@ export default async function DashboardLayout({
         .from("users")
         .update({
           plan_type: "free",
-          optimization_limit: 10,
+          optimization_limit: 50,
           plan_expires_at: null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
 
       activeProfile.plan_type = "free";
-      activeProfile.optimization_limit = 10;
+      activeProfile.optimization_limit = 50;
       activeProfile.plan_expires_at = null;
     }
   }
 
   return (
-    <div className="relative min-h-screen flex bg-bg-primary font-sans">
+    <div className="relative h-screen overflow-hidden flex bg-bg-primary font-sans">
       {/* Subtle decorative ambient blobs */}
       <div className="absolute top-[10%] left-[5%] w-[30%] h-[30%] bg-primary/[0.04] rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-secondary/[0.04] rounded-full blur-[100px] pointer-events-none" />
 
       {/* Light-Mode Sidebar */}
-      <aside className="hidden lg:flex w-[260px] border-r-2 border-slate-200 bg-white flex-col z-20 shadow-sm shrink-0">
+      <aside className="hidden lg:flex w-[260px] border-r-2 border-slate-200 bg-white flex-col z-20 shadow-sm shrink-0 h-screen sticky top-0">
         {/* Sidebar Header */}
         <div className="h-[72px] flex items-center px-6 border-b border-slate-200">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
