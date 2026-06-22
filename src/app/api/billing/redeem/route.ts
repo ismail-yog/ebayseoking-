@@ -3,10 +3,14 @@ import { createClientServer } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const PLAN_LIMITS: Record<string, number> = {
+  starter: 200,
+  growth: 350,
+  power: 500,
+  agency: 1000,
+  enterprise: 3000,
   basic: 100,
   pro: 1000,
   business: 3000,
-  enterprise: 5000,
 };
 
 export async function POST(req: Request) {
