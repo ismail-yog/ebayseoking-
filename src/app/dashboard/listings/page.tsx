@@ -11,19 +11,22 @@ export default async function ListingsPage() {
     redirect("/");
   }
 
-  // Fetch listing items
-  const { data: listings } = await supabase
-    .from("product_listings")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  // Fetch listings and user profile in parallel to eliminate waterfall latency
+  const [listingsRes, profileRes] = await Promise.all([
+    supabase
+      .from("product_listings")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("users")
+      .select("optimizations_used, optimization_limit")
+      .eq("id", user.id)
+      .single()
+  ]);
 
-  // Fetch user profile to validate credits limits
-  const { data: profile } = await supabase
-    .from("users")
-    .select("optimizations_used, optimization_limit")
-    .eq("id", user.id)
-    .single();
+  const listings = listingsRes.data;
+  const profile = profileRes.data;
 
   return (
     <ListingsPageContent 

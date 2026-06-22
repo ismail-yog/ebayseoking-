@@ -41,12 +41,22 @@ export default async function DashboardLayout({
     redirect("/");
   }
 
-  // Fetch user profile stats
-  const { data: profile } = await supabase
-    .from("users")
-    .select("full_name, email, plan_type, optimization_limit, optimizations_used, plan_expires_at")
-    .eq("id", user.id)
-    .single();
+  // Fetch profile and store credentials status in parallel to eliminate waterfall latency
+  const [profileRes, credentialsRes] = await Promise.all([
+    supabase
+      .from("users")
+      .select("full_name, email, plan_type, optimization_limit, optimizations_used, plan_expires_at")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("store_credentials")
+      .select("ebay_store_name")
+      .eq("user_id", user.id)
+      .maybeSingle()
+  ]);
+
+  const profile = profileRes.data;
+  const credentials = credentialsRes.data;
 
   const activeProfile = profile ? { ...profile } : {
     full_name: user.user_metadata?.full_name || "SyncSell Merchant",
@@ -56,13 +66,6 @@ export default async function DashboardLayout({
     optimizations_used: 0,
     plan_expires_at: null,
   };
-
-  // Fetch eBay credentials status
-  const { data: credentials } = await supabase
-    .from("store_credentials")
-    .select("ebay_store_name")
-    .eq("user_id", user.id)
-    .maybeSingle();
 
   const isConnected = !!credentials;
 

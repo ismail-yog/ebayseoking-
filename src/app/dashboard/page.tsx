@@ -21,12 +21,38 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     redirect("/");
   }
 
-  // Fetch user profile details for stats, settings & billing
-  const { data: profile } = await supabase
+  // Start queries in parallel to eliminate waterfall latency
+  const profilePromise = supabase
     .from("users")
     .select("plan_type, optimization_limit, optimizations_used, plan_expires_at, is_autopilot_enabled, marketplace_region, sync_interval")
     .eq("id", user.id)
     .single();
+
+  const isOverview = !tab;
+  const credentialsPromise = isOverview
+    ? supabase
+        .from("store_credentials")
+        .select("ebay_store_name, ebay_username")
+        .eq("user_id", user.id)
+        .maybeSingle()
+    : Promise.resolve({ data: null });
+
+  const listingsPromise = isOverview
+    ? supabase
+        .from("product_listings")
+        .select("status")
+        .eq("user_id", user.id)
+    : Promise.resolve({ data: null });
+
+  const [profileRes, credentialsRes, listingsRes] = await Promise.all([
+    profilePromise,
+    credentialsPromise,
+    listingsPromise,
+  ]);
+
+  const profile = profileRes.data;
+  const credentials = credentialsRes.data;
+  const listings = listingsRes.data;
 
   const activeProfile = profile ? {
     ...profile,
@@ -53,24 +79,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     return <SettingsPanel profile={activeProfile} />;
   }
 
-  // Fetch eBay credentials status
-  const { data: credentials } = await supabase
-    .from("store_credentials")
-    .select("ebay_store_name, ebay_username")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
   const isConnected = !!credentials;
 
   // Fetch stats from product_listings
   let totalListings = 0;
   let optimizedListings = 0;
   let pendingListings = 0;
-
-  const { data: listings } = await supabase
-    .from("product_listings")
-    .select("status")
-    .eq("user_id", user.id);
 
   if (listings) {
     totalListings = listings.length;
