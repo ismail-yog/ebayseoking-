@@ -22,6 +22,8 @@ export function BillingPanel({ profile }: BillingPanelProps) {
   const [selectedPlanForInstructions, setSelectedPlanForInstructions] = useState<string | null>(null);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [ocrResultCode, setOcrResultCode] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
 
   const handleReceiptUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,7 +57,16 @@ export function BillingPanel({ profile }: BillingPanelProps) {
           if (!res.ok) throw new Error(data.error || "Failed to verify receipt");
 
           toast.success("AI Payment Verification Successful!", { id: "receipt-upload", duration: 4000 });
-          setOcrResultCode(data.code);
+          
+          if (data.emailSent) {
+            setEmailSent(true);
+            setRegisteredEmail(data.email);
+            setOcrResultCode(""); // clear input for user copy-paste verification
+          } else {
+            setEmailSent(false);
+            setOcrResultCode(data.code);
+            toast.info("Resend unconfigured. Verification code displayed below.");
+          }
         } catch (err: unknown) {
           toast.error(err instanceof Error ? err.message : "Failed to verify receipt", { id: "receipt-upload" });
         } finally {
@@ -407,38 +418,66 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                     Transferred the amount? Upload your transaction screenshot below, and our Claude Vision AI will instantly verify it, log it, and generate your activation key.
                   </p>
 
-                  {!ocrResultCode ? (
-                    <div className="relative border-2 border-dashed border-slate-350 hover:border-primary rounded-xl p-5 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100/50 transition-all cursor-pointer group">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleReceiptUpload}
-                        disabled={uploadingReceipt}
-                        className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
-                      />
-                      <Upload className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1.5" />
-                      <span className="text-xs font-bold text-slate-700">
-                        {uploadingReceipt ? "Verifying payment receipt..." : "Click or Drag receipt here"}
-                      </span>
-                      <span className="text-[9px] text-slate-400 font-semibold mt-0.5">Supports PNG, JPEG, JPG (max 4.5MB)</span>
-                    </div>
-                  ) : (
-                    <div className="p-4 rounded-xl bg-green-50 border-2 border-green-200 space-y-3 shadow-inner">
-                      <p className="text-xs font-bold text-green-800 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4.5 h-4.5 text-green-600 shrink-0" />
-                        <span>Activation Key Generated!</span>
-                      </p>
-                      <div className="flex items-center justify-between gap-2 bg-white px-3.5 py-2.5 rounded-lg border border-green-250 shadow-sm">
-                        <span className="font-black font-mono text-sm text-slate-900 tracking-wider select-all">{ocrResultCode}</span>
-                        <span className="text-[9px] font-bold text-green-700 bg-green-55/30 px-2 py-0.5 rounded uppercase">Verified</span>
+                  {!emailSent ? (
+                    !ocrResultCode ? (
+                      <div className="relative border-2 border-dashed border-slate-350 hover:border-primary rounded-xl p-5 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100/50 transition-all cursor-pointer group">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleReceiptUpload}
+                          disabled={uploadingReceipt}
+                          className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
+                        />
+                        <Upload className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1.5" />
+                        <span className="text-xs font-bold text-slate-700">
+                          {uploadingReceipt ? "Verifying payment receipt..." : "Click or Drag receipt here"}
+                        </span>
+                        <span className="text-[9px] text-slate-400 font-semibold mt-0.5">Supports PNG, JPEG, JPG (max 4.5MB)</span>
                       </div>
-                      <button
-                        onClick={() => handleAutoRedeem(ocrResultCode)}
-                        disabled={redeeming}
-                        className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-xs font-extrabold text-white rounded-lg shadow-md cursor-pointer disabled:opacity-50 transition-colors"
-                      >
-                        {redeeming ? "Activating Plan..." : "Instant Unlock Credits"}
-                      </button>
+                    ) : (
+                      <div className="p-4 rounded-xl bg-green-50 border-2 border-green-200 space-y-3 shadow-inner">
+                        <p className="text-xs font-bold text-green-800 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4.5 h-4.5 text-green-600 shrink-0" />
+                          <span>Activation Key Generated! (Demo Mode)</span>
+                        </p>
+                        <div className="flex items-center justify-between gap-2 bg-white px-3.5 py-2.5 rounded-lg border border-green-250 shadow-sm">
+                          <span className="font-black font-mono text-sm text-slate-900 tracking-wider select-all">{ocrResultCode}</span>
+                          <span className="text-[9px] font-bold text-green-700 bg-green-55/30 px-2 py-0.5 rounded uppercase">Verified</span>
+                        </div>
+                        <button
+                          onClick={() => handleAutoRedeem(ocrResultCode)}
+                          disabled={redeeming}
+                          className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-xs font-extrabold text-white rounded-lg shadow-md cursor-pointer disabled:opacity-50 transition-colors"
+                        >
+                          {redeeming ? "Activating Plan..." : "Instant Unlock Credits"}
+                        </button>
+                      </div>
+                    )
+                  ) : (
+                    <div className="p-5 rounded-xl bg-indigo-50 border-2 border-indigo-200 space-y-3.5 shadow-inner">
+                      <p className="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+                        <Ticket className="w-4.5 h-4.5 text-primary shrink-0" />
+                        <span>Activation Key Emailed!</span>
+                      </p>
+                      <p className="text-[11px] text-indigo-750 font-medium leading-relaxed">
+                        We have successfully verified your transfer and sent your one-time activation code to your registered email address: <strong className="text-slate-950">{registeredEmail}</strong>. Please check your inbox (or spam) and paste the code below to claim your credits.
+                      </p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="SYNC-REDEEM-XXXX-XXXX"
+                          value={ocrResultCode || ""}
+                          onChange={(e) => setOcrResultCode(e.target.value.toUpperCase())}
+                          className="flex-1 bg-white border-2 border-indigo-250 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg py-2 px-3.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none font-mono font-bold uppercase tracking-wider"
+                        />
+                        <button
+                          onClick={() => handleAutoRedeem(ocrResultCode || "")}
+                          disabled={redeeming || !ocrResultCode}
+                          className="px-5 py-2 bg-indigo-650 hover:bg-indigo-700 text-xs font-extrabold text-white rounded-lg shadow-md cursor-pointer disabled:opacity-50 transition-colors outline-none"
+                        >
+                          {redeeming ? "Verifying..." : "Verify & Activate"}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

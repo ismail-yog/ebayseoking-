@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { createClientServer } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import Anthropic from "@anthropic-ai/sdk";
+import { sendActivationEmail } from "@/lib/email";
+
+const PLAN_LIMITS: Record<string, number> = {
+  starter: 200,
+  growth: 350,
+  power: 500,
+  agency: 1000,
+  enterprise: 3000,
+};
 
 const PACKAGE_PRICES: Record<string, { usd: number; pkr: number }> = {
   starter: { usd: 39, pkr: 10950 },
@@ -177,9 +186,31 @@ export async function POST(req: Request) {
       level: 'success'
     });
 
+    // Send activation code to user's email
+    const creditsCount = PLAN_LIMITS[packageId] || 10;
+    const emailResult = await sendActivationEmail(user.email || "", uniqueCode, packageId, creditsCount);
+
+    if (!emailResult.success) {
+      console.warn(`Email sending skipped/failed: ${emailResult.error}`);
+      // Log code to system logs as fallback so they can retrieve it locally in development
+      await supabaseAdmin.from('system_logs').insert({
+        user_id: user.id,
+        message: `[Email Fallback] Generated Key: ${uniqueCode} for ${packageId} package (Sent to: ${user.email})`,
+        level: 'info'
+      });
+    } else {
+      await supabaseAdmin.from('system_logs').insert({
+        user_id: user.id,
+        message: `Activation key emailed to ${user.email} successfully.`,
+        level: 'info'
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      code: uniqueCode,
+      emailSent: emailResult.success,
+      email: user.email,
+      code: uniqueCode, // Return code in response as backup/development ease
       transactionId: transactionId,
       amount: result.amount,
       currency: result.currency
