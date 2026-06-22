@@ -373,11 +373,13 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-slate-600 font-mono text-[11px]">
                     <span>Bank Name:</span>
-                    <span className="col-span-2 text-slate-900 font-extrabold">Meezan Bank Limited</span>
+                    <span className="col-span-2 text-slate-900 font-extrabold">SadaPay</span>
+                    <span>Account No:</span>
+                    <span className="col-span-2 text-slate-950 font-black select-all">03295658149</span>
                     <span>Account Title:</span>
-                    <span className="col-span-2 text-slate-900 font-extrabold">Ismail Bashir</span>
+                    <span className="col-span-2 text-slate-900 font-extrabold">Muhammad Ismail Bashir</span>
                     <span>IBAN Account:</span>
-                    <span className="col-span-2 text-slate-950 font-black select-all">PK64MEZN00300109485293</span>
+                    <span className="col-span-2 text-slate-950 font-black select-all">PK81SADA0000003295658149</span>
                   </div>
                 </div>
 
@@ -390,10 +392,12 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                   <div className="grid grid-cols-3 gap-2 text-slate-600 font-mono text-[11px]">
                     <span>Provider:</span>
                     <span className="col-span-2 text-slate-900 font-extrabold">EasyPaisa</span>
-                    <span>Mobile Number:</span>
-                    <span className="col-span-2 text-slate-950 font-black select-all">0300 1234567</span>
+                    <span>Account No:</span>
+                    <span className="col-span-2 text-slate-950 font-black select-all">03160580345</span>
                     <span>Account Name:</span>
-                    <span className="col-span-2 text-slate-900 font-extrabold">Ismail Bashir</span>
+                    <span className="col-span-2 text-slate-900 font-extrabold">Muhammad Ismail Bashir</span>
+                    <span>IBAN Account:</span>
+                    <span className="col-span-2 text-slate-950 font-black select-all">PK41TMFB0000000078433120</span>
                   </div>
                 </div>
 
@@ -403,7 +407,7 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                   <div>
                     <p className="font-extrabold text-slate-900">How to receive your key:</p>
                     <p className="mt-1 leading-normal text-slate-700 font-medium">
-                      Send a screenshot of your transfer receipt via WhatsApp to <span className="font-extrabold text-slate-900 select-all">+92 300 1234567</span> or email to <span className="font-extrabold text-slate-900 select-all">billing@syncsell.ai</span>. You will receive your one-time activation code within 15 minutes!
+                      Send a screenshot of your transfer receipt via WhatsApp to <span className="font-extrabold text-slate-900 select-all">+92 316 0580345</span> or email to <span className="font-extrabold text-slate-900 select-all">billing@syncsell.ai</span>. You will receive your one-time activation code within 15 minutes!
                     </p>
                   </div>
                 </div>
