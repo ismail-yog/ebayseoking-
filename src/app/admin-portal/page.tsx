@@ -10,7 +10,12 @@ import {
   Calendar, Award, CreditCard, ChevronLeft 
 } from "lucide-react";
 
-const ADMIN_EMAILS = ["connect@syncsell.org", "immicpb@gmail.com"];
+const ADMIN_EMAILS = [
+  "connect@syncsell.org", 
+  "immicpb@gmail.com", 
+  "ismailbashir249@gmail.com", 
+  "ismiyt26@gmail.com"
+];
 
 export default async function AdminPortalPage() {
   const supabase = await createClientServer();

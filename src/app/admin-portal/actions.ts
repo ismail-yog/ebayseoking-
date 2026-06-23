@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { createClientServer } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const ADMIN_EMAILS = ["connect@syncsell.org", "immicpb@gmail.com"];
+const ADMIN_EMAILS = [
+  "connect@syncsell.org", 
+  "immicpb@gmail.com", 
+  "ismailbashir249@gmail.com", 
+  "ismiyt26@gmail.com"
+];
 
 async function checkAdmin() {
   const supabase = await createClientServer();
