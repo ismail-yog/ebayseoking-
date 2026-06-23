@@ -407,7 +407,7 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                   <div>
                     <p className="font-extrabold text-slate-900">How to receive your key:</p>
                     <p className="mt-1 leading-normal text-slate-700 font-medium">
-                      Send a screenshot of your transfer receipt via WhatsApp to <span className="font-extrabold text-slate-900 select-all">+92 316 0580345</span> or email to <span className="font-extrabold text-slate-900 select-all">billing@syncsell.ai</span>. You will receive your one-time activation code within 15 minutes!
+                      Send a screenshot of your transfer receipt via WhatsApp to <span className="font-extrabold text-slate-900 select-all">+92 316 0580345</span> or email to <span className="font-extrabold text-slate-900 select-all">connect@syncsell.org</span>. You will receive your one-time activation code within 15 minutes!
                     </p>
                   </div>
                 </div>
