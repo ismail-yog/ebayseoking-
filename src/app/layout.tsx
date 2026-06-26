@@ -48,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable} ${montserrat.variable}`}>
-      <body className="antialiased font-sans bg-bg-primary text-slate-800 min-h-screen selection:bg-primary/20 selection:text-primary relative overflow-x-hidden">
+      <body className="antialiased font-sans bg-onyx-black text-pure-white min-h-screen selection:bg-metallic-gold/30 selection:text-metallic-gold relative overflow-x-hidden">
         {/* Subtle ambient gradient blobs (reduced intensity for light theme) */}
         <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blob-indigo filter blur-[140px] pointer-events-none -z-10 opacity-60" />
         <div className="absolute top-[30%] right-[-15%] w-[40vw] h-[40vw] rounded-full bg-blob-purple filter blur-[120px] pointer-events-none -z-10 opacity-50" />

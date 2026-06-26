@@ -187,8 +187,8 @@
 }
 
 body {
-  background-color: var(--color-bg-primary);
-  color: #1e293b; /* slate-800 */
+  background-color: var(--color-onyx-black);
+  color: var(--color-pure-white);
   font-family: var(--font-inter), sans-serif;
   overflow-x: hidden;
 }
@@ -199,17 +199,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--color-onyx-black);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-graphite-surface);
   border-radius: 9999px;
-  border: 2px solid #f1f5f9;
+  border: 2px solid var(--color-onyx-black);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-metallic-gold);
 }
 
 /* High Contrast Card Modules (Depth & Boundaries) */

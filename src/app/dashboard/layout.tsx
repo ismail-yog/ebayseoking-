@@ -155,7 +155,7 @@ export default async function DashboardLayout({
             className="flex items-center gap-3 px-3.5 py-2.5 rounded-sm text-sm font-bold text-muted-silver hover:text-metallic-gold hover:bg-white/5 transition-all duration-200 group"
           >
             <CreditCard className="w-[18px] h-[18px] text-muted-silver group-hover:text-metallic-gold transition-colors" />
-            <span>Billing</span>
+            <span>Redeem License</span>
           </Link>
           <Link 
             href="/dashboard?tab=settings" 
