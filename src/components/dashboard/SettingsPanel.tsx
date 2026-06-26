@@ -15,7 +15,11 @@ interface SettingsPanelProps {
 export function SettingsPanel({ profile }: SettingsPanelProps) {
   const [isAutopilot, setIsAutopilot] = useState(profile.is_autopilot_enabled);
   const [region, setRegion] = useState(profile.marketplace_region || "US");
-  const [interval, setInterval] = useState(profile.sync_interval || "24h");
+  const [interval, setInterval] = useState(() => {
+    const val = profile.sync_interval;
+    if (val === "4d" || val === "1w" || val === "2w") return val;
+    return "4d";
+  });
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -122,9 +126,9 @@ export function SettingsPanel({ profile }: SettingsPanelProps) {
               onChange={(e) => setInterval(e.target.value)}
               className="w-full bg-onyx-black border border-white/15 rounded-sm py-2.5 px-3.5 text-sm font-semibold text-pure-white focus:outline-none focus:border-metallic-gold focus:ring-1 focus:ring-metallic-gold/30 transition-all duration-150 shadow-sm"
             >
-              <option value="12h" className="bg-onyx-black text-pure-white font-semibold">Twice Daily (Every 12 Hours)</option>
-              <option value="24h" className="bg-onyx-black text-pure-white font-semibold">Once Daily (Every 24 Hours)</option>
-              <option value="manual" className="bg-onyx-black text-pure-white font-semibold">Manual Pull Only</option>
+              <option value="4d" className="bg-onyx-black text-pure-white font-semibold">Every 4 Days</option>
+              <option value="1w" className="bg-onyx-black text-pure-white font-semibold">Every 1 Week</option>
+              <option value="2w" className="bg-onyx-black text-pure-white font-semibold">Every 2 Weeks</option>
             </select>
           </div>
         </div>

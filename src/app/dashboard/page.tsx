@@ -58,7 +58,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     ...profile,
     is_autopilot_enabled: !!profile.is_autopilot_enabled,
     marketplace_region: profile.marketplace_region || "US",
-    sync_interval: profile.sync_interval || "24h",
+    sync_interval: profile.sync_interval || "4d",
   } : {
     plan_type: "free",
     optimization_limit: 50,
@@ -66,7 +66,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     plan_expires_at: null,
     is_autopilot_enabled: false,
     marketplace_region: "US",
-    sync_interval: "24h",
+    sync_interval: "4d",
   };
 
   // Render Billing Tab Panel

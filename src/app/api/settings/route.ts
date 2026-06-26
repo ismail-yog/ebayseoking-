@@ -18,12 +18,27 @@ export async function POST(req: Request) {
       .update({
         is_autopilot_enabled: !!is_autopilot_enabled,
         marketplace_region: marketplace_region || "US",
-        sync_interval: sync_interval || "24h",
+        sync_interval: sync_interval || "4d",
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
 
     if (error) throw error;
+
+    // Trigger Autopilot run immediately if enabled
+    if (is_autopilot_enabled) {
+      const originUrl = new URL(req.url).origin;
+      const autopilotUrl = `${originUrl}/api/jobs/autopilot`;
+      const cronSecret = process.env.CRON_SECRET || "";
+
+      fetch(autopilotUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${cronSecret}`,
+          "Content-Type": "application/json",
+        },
+      }).catch((e) => console.error("Failed to auto-trigger autopilot run:", e));
+    }
 
     console.log(`Successfully updated settings for user ${user.id}`);
     return NextResponse.json({ success: true });
