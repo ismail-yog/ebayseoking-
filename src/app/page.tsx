@@ -39,12 +39,6 @@ export default function LandingPage() {
           <Link className="font-display-xl-mobile text-headline-md tracking-tighter text-pure-white hover:text-metallic-gold transition-colors duration-300" href="/">
             SyncSell
           </Link>
-          <button 
-            onClick={openBetaModal}
-            className="bg-metallic-gold text-onyx-black font-button-text text-button-text uppercase px-8 py-4 rounded-none hover:bg-primary-fixed-dim transition-colors active:scale-95 cursor-pointer font-bold"
-          >
-            Apply Now
-          </button>
         </div>
       </nav>
 
