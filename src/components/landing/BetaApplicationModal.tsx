@@ -316,19 +316,19 @@ export function BetaApplicationModal({ isOpen, onClose }: BetaApplicationModalPr
                             Application Qualified
                           </span>
                           <h3 className="font-headline-md text-headline-md text-pure-white font-bold tracking-tight">
-                            Book Your Strategy Call
+                            Start Your Strategy Call
                           </h3>
                           <p className="font-body-md text-body-md text-muted-silver max-w-sm mx-auto leading-relaxed">
-                            Congratulations! Your store volume qualifies for our Elite Beta Program. Let&apos;s schedule your 15-minute onboarding & alignment call.
+                            Congratulations! Your store volume qualifies for our Elite Beta Program. Let&apos;s launch your 15-minute onboarding & alignment call on Google Meet.
                           </p>
                         </div>
                         <a
-                          href="https://calendly.com/ismail-bashir/syncsell-strategy"
+                          href="https://meet.google.com/hfs-ywyz-xgo"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center gap-2 bg-metallic-gold text-onyx-black font-button-text text-button-text uppercase px-10 py-4.5 font-bold hover:bg-primary-fixed-dim transition-colors cursor-pointer w-full sm:w-auto"
                         >
-                          Schedule On Calendly
+                          Join Google Meet
                           <ArrowRight className="w-4 h-4" />
                         </a>
                       </>
