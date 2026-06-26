@@ -6,10 +6,13 @@ import {
   ArrowRight, Zap, TrendingUp, CheckCircle2, Lock
 } from "lucide-react";
 import { BetaApplicationModal } from "@/components/landing/BetaApplicationModal";
+import { AuthModal } from "@/components/landing/AuthModal";
 import { ShaderBackground } from "@/components/landing/ShaderBackground";
 
 export default function LandingPage() {
   const [betaModalOpen, setBetaModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<"login" | "signup" | "otp">("login");
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -22,6 +25,11 @@ export default function LandingPage() {
 
   const openBetaModal = () => {
     setBetaModalOpen(true);
+  };
+
+  const openAuth = (tab: "login" | "signup" | "otp") => {
+    setAuthModalTab(tab);
+    setAuthModalOpen(true);
   };
 
   return (
@@ -39,6 +47,12 @@ export default function LandingPage() {
           <Link className="font-display-xl-mobile text-headline-md tracking-tighter text-pure-white hover:text-metallic-gold transition-colors duration-300" href="/">
             SyncSell
           </Link>
+          <button 
+            onClick={() => openAuth("login")}
+            className="text-xs uppercase tracking-wider font-bold text-muted-silver hover:text-pure-white transition-colors cursor-pointer"
+          >
+            Merchant Login
+          </button>
         </div>
       </nav>
 
@@ -255,6 +269,13 @@ export default function LandingPage() {
       <BetaApplicationModal 
         isOpen={betaModalOpen} 
         onClose={() => setBetaModalOpen(false)} 
+      />
+
+      {/* Unified Authentication Modal (For Approved Merchants) */}
+      <AuthModal 
+        isOpen={authModalOpen} 
+        onClose={() => setAuthModalOpen(false)} 
+        defaultTab={authModalTab}
       />
     </div>
   );
