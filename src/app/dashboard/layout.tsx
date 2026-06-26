@@ -7,6 +7,7 @@ import {
   ShieldCheck, Zap, CheckCircle2
 } from "lucide-react";
 import { CreditCounter } from "@/components/dashboard/CreditCounter";
+import { ShaderBackground } from "@/components/landing/ShaderBackground";
 
 // Log out action for Server Action inside dashboard shell
 async function logout() {
@@ -26,7 +27,6 @@ async function disconnectEbay() {
   }
   redirect("/dashboard");
 }
-
 
 export default async function DashboardLayout({
   children,
@@ -92,36 +92,37 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="relative min-h-screen bg-bg-primary font-sans">
-      {/* Subtle decorative ambient blobs */}
-      <div className="absolute top-[10%] left-[5%] w-[30%] h-[30%] bg-primary/[0.04] rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-secondary/[0.04] rounded-full blur-[100px] pointer-events-none" />
+    <div className="relative min-h-screen bg-onyx-black text-pure-white font-sans selection:bg-metallic-gold selection:text-onyx-black">
+      {/* Fixed background shader backdrop */}
+      <div className="fixed inset-0 z-[-1] pointer-events-none opacity-30 mix-blend-screen">
+        <ShaderBackground />
+      </div>
 
-      {/* Light-Mode Sidebar — Fixed to viewport */}
-      <aside className="hidden lg:flex w-[260px] border-r-2 border-slate-200 bg-white flex-col z-20 shadow-sm fixed top-0 left-0 bottom-0 overflow-y-auto">
+      {/* Sidebar — Fixed to viewport */}
+      <aside className="hidden lg:flex w-[260px] border-r border-white/10 bg-graphite-surface flex-col z-20 shadow-xl fixed top-0 left-0 bottom-0 overflow-y-auto">
         {/* Sidebar Header */}
-        <div className="h-[72px] flex items-center px-6 border-b border-slate-200">
+        <div className="h-[72px] flex items-center px-6 border-b border-white/10 bg-onyx-black/20">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-md shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
-              <Zap className="w-4.5 h-4.5 text-white" />
+            <div className="w-8 h-8 rounded-sm bg-metallic-gold text-onyx-black flex items-center justify-center shadow-md shadow-metallic-gold/15 group-hover:scale-105 transition-transform">
+              <Zap className="w-4 h-4 text-onyx-black fill-onyx-black/10" />
             </div>
-            <span className="font-black text-xl font-heading text-slate-950 tracking-tight">
+            <span className="font-extrabold text-lg font-display text-pure-white tracking-tight">
               SyncSell
             </span>
           </Link>
         </div>
 
         {/* Profile Section & Credits */}
-        <div className="p-4.5 border-b border-slate-200 space-y-4">
+        <div className="p-5 border-b border-white/10 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-accent-magenta flex items-center justify-center font-bold text-sm text-white shrink-0 shadow-md shadow-primary/15">
+            <div className="w-10 h-10 rounded-sm bg-metallic-gold/10 border border-metallic-gold/20 flex items-center justify-center font-bold text-sm text-metallic-gold shrink-0 shadow-inner">
               {activeProfile.full_name.substring(0, 2).toUpperCase()}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-bold truncate text-slate-900">
+              <p className="text-sm font-bold truncate text-pure-white font-display">
                 {activeProfile.full_name}
               </p>
-              <p className="text-[11px] text-slate-500 truncate font-medium">
+              <p className="text-[11px] text-muted-silver truncate font-medium">
                 {activeProfile.email}
               </p>
             </div>
@@ -137,54 +138,54 @@ export default async function DashboardLayout({
         <nav className="flex-1 py-5 px-3 space-y-1">
           <Link 
             href="/dashboard" 
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-primary hover:bg-primary/[0.06] transition-all duration-200 group"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-sm text-sm font-bold text-muted-silver hover:text-metallic-gold hover:bg-white/5 transition-all duration-200 group"
           >
-            <LayoutDashboard className="w-[18px] h-[18px] text-slate-400 group-hover:text-primary transition-colors" />
+            <LayoutDashboard className="w-[18px] h-[18px] text-muted-silver group-hover:text-metallic-gold transition-colors" />
             <span>Overview</span>
           </Link>
           <Link 
             href="/dashboard/listings" 
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-secondary hover:bg-secondary/[0.06] transition-all duration-200 group"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-sm text-sm font-bold text-muted-silver hover:text-metallic-gold hover:bg-white/5 transition-all duration-200 group"
           >
-            <ShoppingBag className="w-[18px] h-[18px] text-slate-400 group-hover:text-secondary transition-colors" />
+            <ShoppingBag className="w-[18px] h-[18px] text-muted-silver group-hover:text-metallic-gold transition-colors" />
             <span>Listings</span>
           </Link>
           <Link 
             href="/dashboard?tab=billing" 
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-accent-cyan hover:bg-accent-cyan/[0.06] transition-all duration-200 group"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-sm text-sm font-bold text-muted-silver hover:text-metallic-gold hover:bg-white/5 transition-all duration-200 group"
           >
-            <CreditCard className="w-[18px] h-[18px] text-slate-400 group-hover:text-accent-cyan transition-colors" />
+            <CreditCard className="w-[18px] h-[18px] text-muted-silver group-hover:text-metallic-gold transition-colors" />
             <span>Billing</span>
           </Link>
           <Link 
             href="/dashboard?tab=settings" 
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 group"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-sm text-sm font-bold text-muted-silver hover:text-metallic-gold hover:bg-white/5 transition-all duration-200 group"
           >
-            <Settings className="w-[18px] h-[18px] text-slate-400 group-hover:text-slate-600 transition-colors" />
+            <Settings className="w-[18px] h-[18px] text-muted-silver group-hover:text-metallic-gold transition-colors" />
             <span>Settings</span>
           </Link>
         </nav>
 
         {/* Sidebar Footer (Connect eBay & Sign Out) */}
-        <div className="p-4 border-t border-slate-200 space-y-3 mt-auto">
+        <div className="p-4 border-t border-white/10 space-y-3 mt-auto bg-onyx-black/10">
           {!isConnected ? (
             <a 
               href="/api/ebay/auth"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-bold text-white shadow-lg shadow-primary/20 transition-all text-center cursor-pointer hover:-translate-y-0.5"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-metallic-gold hover:bg-primary-fixed-dim text-onyx-black text-xs font-extrabold uppercase transition-all text-center cursor-pointer hover:shadow-[0_0_15px_rgba(212,175,55,0.15)] active:scale-95"
             >
-              <Zap className="w-3.5 h-3.5 fill-white/10" />
+              <Zap className="w-3.5 h-3.5" />
               <span>Connect eBay Store</span>
             </a>
           ) : (
             <div className="space-y-2 w-full">
-              <div className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-green-50 border-2 border-green-200 text-xs font-bold text-green-700">
-                <CheckCircle2 className="w-3.5 h-3.5" />
+              <div className="flex items-center justify-center gap-2 w-full py-2.5 px-3 bg-metallic-gold/10 border border-metallic-gold/30 text-xs font-bold text-metallic-gold">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 <span className="truncate">Connected: {credentials?.ebay_store_name || "eBay"}</span>
               </div>
               <form action={disconnectEbay} className="w-full">
                 <button
                   type="submit"
-                  className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-red-50 hover:bg-red-100 border-2 border-red-200 text-[11px] font-bold text-red-600 transition-all cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-bold text-pure-white transition-all cursor-pointer active:scale-95"
                 >
                   Disconnect eBay
                 </button>
@@ -195,7 +196,7 @@ export default async function DashboardLayout({
           <form action={logout} className="w-full">
             <button 
               type="submit" 
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-50 hover:bg-red-50 border-2 border-slate-200 hover:border-red-200 text-xs font-bold text-slate-600 hover:text-red-600 transition-all cursor-pointer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-white/5 hover:bg-red-950/20 border border-white/10 hover:border-red-900/30 text-xs font-bold text-muted-silver hover:text-error transition-all cursor-pointer active:scale-95"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
@@ -207,16 +208,16 @@ export default async function DashboardLayout({
       {/* Main Content Area — offset by sidebar width */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-[260px]">
         {/* Top Header Bar */}
-        <header className="h-[72px] border-b-2 border-slate-200 bg-white px-6 lg:px-8 flex items-center justify-between z-10 shadow-sm">
+        <header className="h-[72px] border-b border-white/10 bg-graphite-surface/90 backdrop-blur-md px-6 lg:px-8 flex items-center justify-between z-10 shadow-lg">
           <div>
-            <h1 className="text-lg font-black font-heading text-slate-950 tracking-tight">Dashboard Workspace</h1>
-            <p className="text-[11px] text-slate-500 font-medium">Scale your eBay SEO autopilot</p>
+            <h1 className="text-sm font-black font-display text-pure-white tracking-tight uppercase">Dashboard Workspace</h1>
+            <p className="text-[11px] text-muted-silver font-medium">Scale your eBay SEO autopilot</p>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 border-2 border-slate-200 text-xs shadow-inner">
-              <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
-              <span className="text-slate-700 font-bold capitalize">{activeProfile.plan_type} Tier</span>
+            <div className="flex items-center gap-2 px-3.5 py-1.5 bg-metallic-gold/5 border border-metallic-gold/30 text-xs text-metallic-gold font-bold">
+              <ShieldCheck className="w-3.5 h-3.5 text-metallic-gold" />
+              <span className="capitalize">{activeProfile.plan_type} Tier</span>
             </div>
           </div>
         </header>

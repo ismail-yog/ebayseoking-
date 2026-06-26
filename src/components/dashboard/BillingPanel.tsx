@@ -223,23 +223,23 @@ export function BillingPanel({ profile }: BillingPanelProps) {
   ];
 
   return (
-    <div className="space-y-8 max-w-6xl pb-16 text-slate-800">
+    <div className="space-y-8 max-w-6xl pb-16 text-pure-white">
       {/* Expiry / Credit Status Header */}
-      <div className="bg-white rounded-xl p-6 border-2 border-slate-300 shadow-md relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-graphite-surface rounded-sm p-6 border border-white/10 shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-metallic-gold/5 rounded-full blur-3xl pointer-events-none" />
         
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2 text-left">
-            <h3 className="text-base font-black font-heading text-slate-950 flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-green-600" />
+            <h3 className="text-base font-bold font-display text-pure-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-metallic-gold" />
               <span>Current Subscription Info</span>
             </h3>
-            <div className="text-xs font-semibold text-slate-600 space-y-1">
+            <div className="text-xs font-semibold text-muted-silver space-y-1">
               <p>
-                Active Tier: <span className="font-bold text-slate-800 capitalize">{profile.plan_type}</span>
+                Active Tier: <span className="font-bold text-metallic-gold capitalize">{profile.plan_type}</span>
               </p>
               <p>
-                Expiration Date: <span className="font-semibold text-slate-700">{formatExpiryDate(profile.plan_expires_at)}</span>
+                Expiration Date: <span className="font-semibold text-pure-white">{formatExpiryDate(profile.plan_expires_at)}</span>
               </p>
             </div>
           </div>
@@ -247,12 +247,12 @@ export function BillingPanel({ profile }: BillingPanelProps) {
           {/* Quick Code Input box */}
           <div className="w-full md:max-w-sm shrink-0">
             <form onSubmit={handleRedeem} className="space-y-2 text-left">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+              <label className="text-[10px] font-bold text-muted-silver uppercase tracking-wider block">
                 Redeem Promo Code / License Key
               </label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Ticket className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
+                  <Ticket className="absolute left-3.5 top-3 w-4 h-4 text-muted-silver" />
                   <input
                     type="text"
                     required
@@ -260,13 +260,13 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                     placeholder="SYNC-PRO-XXXX-XXXX"
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
-                    className="w-full bg-white border-2 border-slate-350 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg py-2 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-500 outline-none transition-all duration-200 shadow-sm font-semibold"
+                    className="w-full bg-onyx-black border border-white/15 focus:border-metallic-gold focus:ring-1 focus:ring-metallic-gold/30 rounded-sm py-2.5 pl-10 pr-4 text-sm text-pure-white placeholder:text-muted-silver outline-none transition-all duration-200 shadow-sm font-semibold"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={redeeming}
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-bold text-white shadow-md transition-all hover:-translate-y-0.5 cursor-pointer disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-white"
+                  className="px-5 py-2.5 rounded-sm bg-metallic-gold hover:bg-primary-fixed-dim text-xs font-extrabold uppercase text-onyx-black shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50 outline-none"
                 >
                   Apply
                 </button>
@@ -279,41 +279,43 @@ export function BillingPanel({ profile }: BillingPanelProps) {
       {/* Plans Section */}
       <div className="space-y-4">
         <div className="text-left">
-          <h2 className="text-lg font-black font-heading text-slate-950">Buy Optimization Credits</h2>
-          <p className="text-xs font-semibold text-slate-550">1 Credit = 1 Fully Optimized Listing. Choose a pack that fits your store size.</p>
+          <h2 className="text-lg font-bold font-display text-pure-white">Buy Optimization Credits</h2>
+          <p className="text-xs text-muted-silver">1 Credit = 1 Fully Optimized Listing. Choose a pack that fits your store size.</p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className={`bg-white rounded-xl p-6 border-2 ${plan.borderColor} bg-gradient-to-b ${plan.color} relative overflow-hidden flex flex-col justify-between shadow-md hover:shadow-lg transition-all duration-200`}
+              className={`bg-graphite-surface rounded-sm p-6 border ${
+                plan.popular ? "border-metallic-gold/50 hover:border-metallic-gold" : "border-white/10 hover:border-metallic-gold/30"
+              } relative overflow-hidden flex flex-col justify-between shadow-lg transition-all duration-200 group`}
             >
               {plan.popular && (
-                <div className="absolute top-4 right-4 bg-gradient-to-r from-primary to-secondary text-[8px] font-bold px-2 py-0.5 rounded-full text-white uppercase tracking-wider shadow">
+                <div className="absolute top-4 right-4 bg-metallic-gold text-onyx-black text-[8px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider shadow">
                   Popular
                 </div>
               )}
 
               <div className="space-y-4">
                 <div className="text-left">
-                  <h3 className="text-base font-black font-heading text-slate-950 capitalize">{plan.name} Plan</h3>
+                  <h3 className="text-base font-bold font-display text-pure-white capitalize">{plan.name} Plan</h3>
                   <div className="flex items-baseline gap-1 mt-2">
-                    <span className="text-3xl font-black text-slate-950 font-heading">{plan.price}</span>
+                    <span className="text-3xl font-black text-pure-white font-display">{plan.price}</span>
                   </div>
                   {plan.perCredit && (
-                    <span className="text-[10px] text-slate-500 font-bold mt-1 block">{plan.perCredit} per listing</span>
+                    <span className="text-[10px] text-muted-silver font-bold mt-1 block">{plan.perCredit} per listing</span>
                   )}
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-center shadow-inner font-bold text-slate-700">
-                  <span className="font-extrabold text-slate-900">{plan.limit}</span> optimizations included
+                <div className="p-3 bg-onyx-black/60 rounded-sm border border-white/5 text-xs text-center shadow-inner font-bold text-muted-silver">
+                  <span className="font-extrabold text-metallic-gold">{plan.limit}</span> optimizations included
                 </div>
 
-                <ul className="space-y-2.5 text-xs text-slate-650 font-semibold text-left">
+                <ul className="space-y-2.5 text-xs text-muted-silver font-semibold text-left">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-metallic-gold shrink-0" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -322,10 +324,10 @@ export function BillingPanel({ profile }: BillingPanelProps) {
 
               <button
                 onClick={() => setSelectedPlanForInstructions(plan.id)}
-                className="w-full mt-6 flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-white hover:bg-slate-50 border-2 border-slate-350 text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="w-full mt-6 flex items-center justify-center gap-1.5 py-2.5 rounded-sm bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-pure-white transition-all cursor-pointer shadow-sm outline-none active:scale-95"
               >
                 <span>Get Activation Key</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3.5 h-3.5 text-metallic-gold" />
               </button>
             </div>
           ))}
@@ -342,7 +344,7 @@ export function BillingPanel({ profile }: BillingPanelProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedPlanForInstructions(null)}
-              className="fixed inset-0 bg-slate-950/35 backdrop-blur-md"
+              className="fixed inset-0 bg-onyx-black/60 backdrop-blur-md"
             />
 
             {/* Modal Content */}
@@ -350,81 +352,81 @@ export function BillingPanel({ profile }: BillingPanelProps) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg overflow-hidden rounded-2xl p-8 z-10 text-left bg-white border-2 border-slate-350 shadow-2xl"
+              className="relative w-full max-w-lg overflow-hidden rounded-sm p-8 z-10 text-left bg-graphite-surface border border-white/15 shadow-2xl"
             >
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-secondary to-accent-cyan" />
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-metallic-gold via-primary to-secondary" />
               
-              <h3 className="text-lg font-black font-heading text-slate-950 flex items-center gap-2">
-                <Landmark className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-bold font-display text-pure-white flex items-center gap-2">
+                <Landmark className="w-5 h-5 text-metallic-gold" />
                 <span>Manual Payment & Code Delivery</span>
               </h3>
               
-              <p className="text-xs text-slate-700 mt-2 leading-relaxed font-bold">
-                Stripe is currently unavailable in your region. To unlock the <span className="font-extrabold text-slate-950 capitalize">{selectedPlanForInstructions} Plan</span>, please send your payment manually using the details below.
+              <p className="text-xs text-muted-silver mt-2 leading-relaxed font-bold">
+                Stripe is currently unavailable in your region. To unlock the <span className="font-extrabold text-metallic-gold capitalize">{selectedPlanForInstructions} Plan</span>, please send your payment manually using the details below.
               </p>
 
               {/* Instructions Details */}
               <div className="my-6 space-y-4 text-xs">
                 {/* Option 1: Bank Transfer */}
-                <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-200 space-y-2 shadow-inner">
-                  <div className="flex items-center gap-2 text-slate-900 font-extrabold">
-                    <Landmark className="w-4 h-4 text-accent-cyan" />
+                <div className="p-4 rounded-sm bg-onyx-black/60 border border-white/10 space-y-2 shadow-inner">
+                  <div className="flex items-center gap-2 text-metallic-gold font-extrabold">
+                    <Landmark className="w-4 h-4" />
                     <span>Option 1: Direct Bank Transfer (IBAN)</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-slate-600 font-mono text-[11px]">
+                  <div className="grid grid-cols-3 gap-2 text-muted-silver font-mono text-[11px]">
                     <span>Bank Name:</span>
-                    <span className="col-span-2 text-slate-900 font-extrabold">SadaPay</span>
+                    <span className="col-span-2 text-pure-white font-extrabold">SadaPay</span>
                     <span>Account No:</span>
-                    <span className="col-span-2 text-slate-950 font-black select-all">03295658149</span>
+                    <span className="col-span-2 text-metallic-gold font-black select-all">03295658149</span>
                     <span>Account Title:</span>
-                    <span className="col-span-2 text-slate-900 font-extrabold">Muhammad Ismail Bashir</span>
+                    <span className="col-span-2 text-pure-white font-extrabold">Muhammad Ismail Bashir</span>
                     <span>IBAN Account:</span>
-                    <span className="col-span-2 text-slate-950 font-black select-all">PK81SADA0000003295658149</span>
+                    <span className="col-span-2 text-metallic-gold font-black select-all">PK81SADA0000003295658149</span>
                   </div>
                 </div>
 
                 {/* Option 2: Mobile Wallet */}
-                <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-200 space-y-2 shadow-inner">
-                  <div className="flex items-center gap-2 text-slate-900 font-extrabold">
-                    <PhoneCall className="w-4 h-4 text-secondary" />
+                <div className="p-4 rounded-sm bg-onyx-black/60 border border-white/10 space-y-2 shadow-inner">
+                  <div className="flex items-center gap-2 text-metallic-gold font-extrabold">
+                    <PhoneCall className="w-4 h-4" />
                     <span>Option 2: Mobile Wallet (EasyPaisa / JazzCash)</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-slate-600 font-mono text-[11px]">
+                  <div className="grid grid-cols-3 gap-2 text-muted-silver font-mono text-[11px]">
                     <span>Provider:</span>
-                    <span className="col-span-2 text-slate-900 font-extrabold">EasyPaisa</span>
+                    <span className="col-span-2 text-pure-white font-extrabold">EasyPaisa</span>
                     <span>Account No:</span>
-                    <span className="col-span-2 text-slate-950 font-black select-all">03160580345</span>
+                    <span className="col-span-2 text-metallic-gold font-black select-all">03160580345</span>
                     <span>Account Name:</span>
-                    <span className="col-span-2 text-slate-900 font-extrabold">Muhammad Ismail Bashir</span>
+                    <span className="col-span-2 text-pure-white font-extrabold">Muhammad Ismail Bashir</span>
                     <span>IBAN Account:</span>
-                    <span className="col-span-2 text-slate-950 font-black select-all">PK41TMFB0000000078433120</span>
+                    <span className="col-span-2 text-metallic-gold font-black select-all">PK41TMFB0000000078433120</span>
                   </div>
                 </div>
 
                 {/* Receipt verification note */}
-                <div className="p-3.5 rounded-xl bg-primary/5 border-2 border-primary/20 text-xs text-primary flex items-start gap-2.5">
-                  <HelpCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-sm bg-metallic-gold/5 border border-metallic-gold/20 text-xs text-muted-silver flex items-start gap-2.5">
+                  <HelpCircle className="w-4.5 h-4.5 text-metallic-gold shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-extrabold text-slate-900">How to receive your key:</p>
-                    <p className="mt-1 leading-normal text-slate-700 font-medium">
-                      Send a screenshot of your transfer receipt via WhatsApp to <span className="font-extrabold text-slate-900 select-all">+92 316 0580345</span> or email to <span className="font-extrabold text-slate-900 select-all">connect@syncsell.org</span>. You will receive your one-time activation code within 15 minutes!
+                    <p className="font-extrabold text-pure-white">How to receive your key:</p>
+                    <p className="mt-1 leading-normal text-muted-silver font-medium">
+                      Send a screenshot of your transfer receipt via WhatsApp to <span className="font-extrabold text-metallic-gold select-all">+92 316 0580345</span> or email to <span className="font-extrabold text-metallic-gold select-all">connect@syncsell.org</span>. You will receive your one-time activation code within 15 minutes!
                     </p>
                   </div>
                 </div>
 
                 {/* Instant Verification Section */}
-                <div className="border-t border-slate-200 pt-4.5 space-y-3">
-                  <div className="text-slate-900 font-extrabold text-xs flex items-center gap-2">
-                    <Ticket className="w-4.5 h-4.5 text-primary" />
+                <div className="border-t border-white/10 pt-4.5 space-y-3">
+                  <div className="text-pure-white font-extrabold text-xs flex items-center gap-2">
+                    <Ticket className="w-4.5 h-4.5 text-metallic-gold" />
                     <span>Instant AI Activation (Fastest)</span>
                   </div>
-                  <p className="text-[11px] text-slate-500 leading-normal font-semibold">
+                  <p className="text-[11px] text-muted-silver leading-normal font-semibold">
                     Transferred the amount? Upload your transaction screenshot below, and our Claude Vision AI will instantly verify it, log it, and generate your activation key.
                   </p>
 
                   {!emailSent ? (
                     !ocrResultCode ? (
-                      <div className="relative border-2 border-dashed border-slate-350 hover:border-primary rounded-xl p-5 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100/50 transition-all cursor-pointer group">
+                      <div className="relative border border-dashed border-white/20 hover:border-metallic-gold rounded-sm p-5 flex flex-col items-center justify-center bg-onyx-black/35 hover:bg-onyx-black/60 transition-all cursor-pointer group">
                         <input
                           type="file"
                           accept="image/*"
@@ -432,39 +434,39 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                           disabled={uploadingReceipt}
                           className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
                         />
-                        <Upload className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1.5" />
-                        <span className="text-xs font-bold text-slate-700">
+                        <Upload className="w-6 h-6 text-muted-silver group-hover:text-metallic-gold transition-colors mb-1.5" />
+                        <span className="text-xs font-bold text-pure-white">
                           {uploadingReceipt ? "Verifying payment receipt..." : "Click or Drag receipt here"}
                         </span>
-                        <span className="text-[9px] text-slate-400 font-semibold mt-0.5">Supports PNG, JPEG, JPG (max 4.5MB)</span>
+                        <span className="text-[9px] text-muted-silver font-semibold mt-0.5">Supports PNG, JPEG, JPG (max 4.5MB)</span>
                       </div>
                     ) : (
-                      <div className="p-4 rounded-xl bg-green-50 border-2 border-green-200 space-y-3 shadow-inner">
-                        <p className="text-xs font-bold text-green-800 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4.5 h-4.5 text-green-600 shrink-0" />
+                      <div className="p-4 rounded-sm bg-green-500/10 border border-green-500/20 space-y-3 shadow-inner">
+                        <p className="text-xs font-bold text-green-400 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4.5 h-4.5 text-green-400 shrink-0" />
                           <span>Activation Key Generated! (Demo Mode)</span>
                         </p>
-                        <div className="flex items-center justify-between gap-2 bg-white px-3.5 py-2.5 rounded-lg border border-green-250 shadow-sm">
-                          <span className="font-black font-mono text-sm text-slate-900 tracking-wider select-all">{ocrResultCode}</span>
-                          <span className="text-[9px] font-bold text-green-700 bg-green-55/30 px-2 py-0.5 rounded uppercase">Verified</span>
+                        <div className="flex items-center justify-between gap-2 bg-onyx-black px-3.5 py-2.5 rounded-sm border border-white/10 shadow-sm">
+                          <span className="font-black font-mono text-sm text-pure-white tracking-wider select-all">{ocrResultCode}</span>
+                          <span className="text-[9px] font-bold text-green-450 bg-green-55/35 px-2 py-0.5 rounded-sm uppercase">Verified</span>
                         </div>
                         <button
                           onClick={() => handleAutoRedeem(ocrResultCode)}
                           disabled={redeeming}
-                          className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-xs font-extrabold text-white rounded-lg shadow-md cursor-pointer disabled:opacity-50 transition-colors"
+                          className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-xs font-extrabold text-white rounded-sm shadow-md cursor-pointer disabled:opacity-50 transition-colors"
                         >
                           {redeeming ? "Activating Plan..." : "Instant Unlock Credits"}
                         </button>
                       </div>
                     )
                   ) : (
-                    <div className="p-5 rounded-xl bg-indigo-50 border-2 border-indigo-200 space-y-3.5 shadow-inner">
-                      <p className="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-                        <Ticket className="w-4.5 h-4.5 text-primary shrink-0" />
+                    <div className="p-5 rounded-sm bg-primary/10 border border-primary/20 space-y-3.5 shadow-inner">
+                      <p className="text-xs font-bold text-pure-white flex items-center gap-1.5">
+                        <Ticket className="w-4.5 h-4.5 text-metallic-gold shrink-0" />
                         <span>Activation Key Emailed!</span>
                       </p>
-                      <p className="text-[11px] text-indigo-750 font-medium leading-relaxed">
-                        We have successfully verified your transfer and sent your one-time activation code to your registered email address: <strong className="text-slate-950">{registeredEmail}</strong>. Please check your inbox (or spam) and paste the code below to claim your credits.
+                      <p className="text-[11px] text-muted-silver font-medium leading-relaxed">
+                        We have successfully verified your transfer and sent your one-time activation code to your registered email address: <strong className="text-pure-white">{registeredEmail}</strong>. Please check your inbox (or spam) and paste the code below to claim your credits.
                       </p>
                       <div className="flex gap-2">
                         <input
@@ -472,12 +474,12 @@ export function BillingPanel({ profile }: BillingPanelProps) {
                           placeholder="SYNC-REDEEM-XXXX-XXXX"
                           value={ocrResultCode || ""}
                           onChange={(e) => setOcrResultCode(e.target.value.toUpperCase())}
-                          className="flex-1 bg-white border-2 border-indigo-250 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg py-2 px-3.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none font-mono font-bold uppercase tracking-wider"
+                          className="flex-1 bg-onyx-black border border-white/15 focus:border-metallic-gold focus:ring-1 focus:ring-metallic-gold/30 rounded-sm py-2 px-3.5 text-xs text-pure-white placeholder:text-muted-silver outline-none font-mono font-bold uppercase tracking-wider"
                         />
                         <button
                           onClick={() => handleAutoRedeem(ocrResultCode || "")}
                           disabled={redeeming || !ocrResultCode}
-                          className="px-5 py-2 bg-indigo-650 hover:bg-indigo-700 text-xs font-extrabold text-white rounded-lg shadow-md cursor-pointer disabled:opacity-50 transition-colors outline-none"
+                          className="px-5 py-2 bg-metallic-gold hover:bg-primary-fixed-dim text-xs font-extrabold uppercase text-onyx-black rounded-sm shadow-md cursor-pointer disabled:opacity-50 transition-colors outline-none"
                         >
                           {redeeming ? "Verifying..." : "Verify & Activate"}
                         </button>
@@ -490,7 +492,7 @@ export function BillingPanel({ profile }: BillingPanelProps) {
               {/* Close Button */}
               <button
                 onClick={() => setSelectedPlanForInstructions(null)}
-                className="w-full py-3 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-xs font-bold text-white shadow-md cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="w-full py-3 mt-6 bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-pure-white shadow-md cursor-pointer transition-all active:scale-95"
               >
                 Close Instructions
               </button>
