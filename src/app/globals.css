@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #4f46e5; /* Premium Indigo */
-  --color-secondary: #9333ea; /* Premium Purple */
+  --color-primary-indigo: #4f46e5; /* Premium Indigo */
+  --color-secondary-purple: #9333ea; /* Premium Purple */
   --color-accent-cyan: #0891b2; /* Premium Cyan */
   --color-accent-magenta: #c084fc; /* Light Lavender */
   --color-bg-primary: #f1f5f9; /* Slate-100 (Darker light background for contrast) */
@@ -11,6 +11,80 @@
   
   --font-sans: var(--font-inter);
   --font-heading: var(--font-outfit);
+
+  /* Prestige Theme Colors */
+  --color-primary-fixed-dim: #e9c349;
+  --color-on-secondary-fixed: #1a1c1c;
+  --color-on-primary-fixed: #241a00;
+  --color-metallic-gold: #D4AF37;
+  --color-on-primary-container: #554300;
+  --color-primary-fixed: #ffe088;
+  --color-surface-bright: #3a3939;
+  --color-tertiary: #d0cdcd;
+  --color-graphite-surface: #161616;
+  --color-error-container: #93000a;
+  --color-onyx-black: #0A0A0A;
+  --color-secondary-fixed-dim: #c6c6c7;
+  --color-pure-white: #FFFFFF;
+  --color-on-tertiary-fixed-variant: #474746;
+  --color-on-secondary: #2f3131;
+  --color-surface-container-lowest: #0e0e0e;
+  --color-inverse-surface: #e5e2e1;
+  --color-on-secondary-container: #b4b5b5;
+  --color-error: #ffb4ab;
+  --color-on-tertiary-fixed: #1c1b1b;
+  --color-on-primary-fixed-variant: #574500;
+  --color-on-tertiary-container: #454544;
+  --color-on-error-container: #ffdad6;
+  --color-surface-dim: #131313;
+  --color-primary: #f2ca50;
+  --color-on-surface: #e5e2e1;
+  --color-on-secondary-fixed-variant: #454747;
+  --color-outline: #99907c;
+  --color-on-error: #690005;
+  --color-inverse-primary: #735c00;
+  --color-on-background: #e5e2e1;
+  --color-primary-container: #d4af37;
+  --color-on-primary: #3c2f00;
+  --color-surface: #131313;
+  --color-tertiary-fixed: #e5e2e1;
+  --color-on-surface-variant: #d0c5af;
+  --color-muted-silver: #8E8E8E;
+  --color-surface-container-low: #1c1b1b;
+  --color-on-tertiary: #313030;
+  --color-surface-container: #201f1f;
+  --color-tertiary-container: #b4b2b2;
+  --color-tertiary-fixed-dim: #c8c6c5;
+  --color-surface-container-high: #2a2a2a;
+  --color-background: #131313;
+  --color-outline-variant: #4d4635;
+  --color-surface-container-highest: #353534;
+  --color-secondary-container: #454747;
+  --color-surface-tint: #e9c349;
+  --color-surface-variant: #353534;
+  --color-secondary: #c6c6c7;
+  --color-inverse-on-surface: #313030;
+  --color-secondary-fixed: #e2e2e2;
+
+  /* Font Families */
+  --font-montserrat: var(--font-montserrat);
+  --font-display-xl: var(--font-montserrat);
+  --font-display-xl-mobile: var(--font-montserrat);
+  --font-headline-lg: var(--font-montserrat);
+  --font-headline-lg-mobile: var(--font-montserrat);
+  --font-headline-md: var(--font-montserrat);
+  --font-button-text: var(--font-montserrat);
+  --font-body-lg: var(--font-inter);
+  --font-body-md: var(--font-inter);
+  --font-label-caps: var(--font-inter);
+
+  /* Spacing */
+  --spacing-margin-desktop: 80px;
+  --spacing-unit: 8px;
+  --spacing-gutter: 32px;
+  --spacing-container-max: 1440px;
+  --spacing-section-gap: 160px;
+  --spacing-margin-mobile: 24px;
 
   --animate-neon-glow: neon-glow 3s ease-in-out infinite alternate;
   --animate-float: float 6s ease-in-out infinite;
@@ -51,6 +125,61 @@
     0%, 100% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
   }
+}
+
+@utility text-body-lg {
+  font-size: 18px;
+  line-height: 28px;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+@utility text-body-md {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+@utility text-display-xl {
+  font-size: 96px;
+  line-height: 100px;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+@utility text-button-text {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+@utility text-headline-lg-mobile {
+  font-size: 32px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+@utility text-headline-lg {
+  font-size: 64px;
+  line-height: 72px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+@utility text-display-xl-mobile {
+  font-size: 48px;
+  line-height: 52px;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+@utility text-headline-md {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: 0em;
+  font-weight: 600;
+}
+@utility text-label-caps {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.15em;
+  font-weight: 700;
 }
 
 :root {

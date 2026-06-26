@@ -1,22 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import Link from "next/link";
 import { 
-  Sparkles, Zap, ArrowRight, Shield, RefreshCw, 
-  Layers, ChevronRight, CheckCircle2, BarChart3, Bot
+  ArrowRight, Zap, TrendingUp, CheckCircle2, Lock
 } from "lucide-react";
 import { AuthModal } from "@/components/landing/AuthModal";
+import { ShaderBackground } from "@/components/landing/ShaderBackground";
 
 export default function LandingPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"login" | "signup" | "otp">("login");
   const [scrolled, setScrolled] = useState(false);
-  const [stats, setStats] = useState({
-    listingsSynced: "0",
-    listingsOptimized: "0",
-    usersCount: "0",
-  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,400 +21,240 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    fetch("/api/stats")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.listingsSynced) setStats(data);
-      })
-      .catch((err) => console.error("Error loading live stats:", err));
-  }, []);
-
   const openAuth = (tab: "login" | "signup" | "otp") => {
     setAuthModalTab(tab);
     setAuthModalOpen(true);
   };
 
-  const staggerChildren = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 24 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const } }
-  };
-
   return (
-    <div className="relative min-h-screen overflow-hidden bg-transparent text-slate-800 select-none">
-      {/* Floating Header */}
-      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        scrolled ? "py-3 bg-white/95 backdrop-blur-lg border-b border-slate-200 shadow-lg shadow-slate-200/50" : "py-5 bg-transparent"
+    <div className="bg-onyx-black text-pure-white font-body-md antialiased min-h-screen relative overflow-x-hidden selection:bg-metallic-gold selection:text-onyx-black select-none">
+      {/* Background Shader */}
+      <div className="fixed inset-0 z-[-1] pointer-events-none opacity-40 mix-blend-screen">
+        <ShaderBackground />
+      </div>
+
+      {/* TopNavBar */}
+      <nav className={`fixed top-0 w-full z-50 border-b border-white/10 transition-all duration-300 ${
+        scrolled ? "bg-onyx-black/95 backdrop-blur-xl py-2" : "bg-onyx-black/80 backdrop-blur-md py-4"
       }`}>
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-md shadow-primary/30">
-              <Zap className="w-5 h-5 text-white fill-white/10" />
+        <div className="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-unit h-20 max-w-container-max mx-auto">
+          <Link className="font-display-xl-mobile text-headline-md tracking-tighter text-pure-white hover:text-metallic-gold transition-colors duration-300" href="/">
+            SyncSell
+          </Link>
+          <button 
+            onClick={() => openAuth("signup")}
+            className="bg-metallic-gold text-onyx-black font-button-text text-button-text uppercase px-8 py-4 rounded-none hover:bg-primary-fixed-dim transition-colors active:scale-95 cursor-pointer font-bold"
+          >
+            Apply Now
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Content Canvas */}
+      <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+        {/* Hero Section */}
+        <section className="min-h-[80vh] flex flex-col justify-center items-center text-center max-w-4xl mx-auto mb-section-gap pt-12">
+          <span className="font-label-caps text-label-caps uppercase text-metallic-gold tracking-[0.2em] border border-metallic-gold/30 px-4 py-1.5 mb-8 rounded-sm bg-metallic-gold/5 backdrop-blur-sm">
+            Exclusive Access Only
+          </span>
+          <h1 className="font-display-xl-mobile text-display-xl-mobile md:font-display-xl md:text-display-xl text-pure-white mb-8 leading-tight font-black tracking-tight">
+            The Elite AI Growth Partner for High-Volume eBay Sellers.
+          </h1>
+          <p className="font-body-lg text-body-lg text-muted-silver mb-12 max-w-2xl mx-auto font-medium">
+            Sophisticated neural infrastructure for stores managing $50k+ in monthly revenue.
+          </p>
+          <button 
+            onClick={() => openAuth("signup")}
+            className="bg-metallic-gold text-onyx-black font-button-text text-button-text uppercase px-12 py-5 rounded-none hover:bg-primary-fixed-dim hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-300 active:scale-95 group flex items-center gap-3 cursor-pointer font-bold"
+          >
+            Apply For Beta
+            <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </section>
+
+        {/* Agitation Section */}
+        <section className="mb-section-gap grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+          <div className="col-span-1 md:col-span-5 md:col-start-2">
+            <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-pure-white mb-6 leading-tight tracking-tight font-bold">
+              You have the inventory. But the algorithm is beating you.
+            </h2>
+          </div>
+          <div className="col-span-1 md:col-span-5 md:col-start-8">
+            <div className="bg-graphite-surface p-10 border border-white/10 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-metallic-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <p className="font-body-lg text-body-lg text-muted-silver mb-6 relative z-10 leading-relaxed font-medium">
+                Manual optimization is a leak in your revenue pipeline. While you manage logistics and sourcing, algorithmic suppression silently drains your visibility and conversions.
+              </p>
+              <p className="font-body-md text-body-md text-tertiary-container relative z-10 leading-relaxed">
+                The true cost isn&apos;t just lost time; it&apos;s the premium placement yielded to competitors utilizing automated neural infrastructures. We engineer dominance.
+              </p>
             </div>
-            <span className="text-2xl font-black font-heading text-slate-950 tracking-tight">
-              SyncSell
+          </div>
+        </section>
+
+        {/* The Mechanism (3 Steps) */}
+        <section className="mb-section-gap">
+          <div className="text-center mb-20">
+            <span className="font-label-caps text-label-caps uppercase text-muted-silver tracking-[0.2em] mb-4 block font-bold">
+              The Mechanism
             </span>
+            <h2 className="font-headline-md text-headline-md text-pure-white tracking-tight font-bold">
+              Architectural Dominance.
+            </h2>
           </div>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
-            <a href="#features" className="hover:text-primary transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-primary transition-colors">How it Works</a>
-            <a href="#stats" className="hover:text-primary transition-colors">Stats</a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-
-            <button
-              onClick={() => openAuth("signup")}
-              className="relative group overflow-hidden px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-sm font-bold transition-all duration-300 text-white cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none btn-shimmer"
-            >
-              <span className="relative z-10 flex items-center gap-1">
-                Get Started
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-gutter">
+            {/* Step 1 */}
+            <div className="bg-surface p-12 border-t border-metallic-gold/20 hover:border-metallic-gold transition-colors duration-500 flex flex-col items-start relative">
+              <div className="text-metallic-gold mb-8 bg-onyx-black p-4 rounded-sm border border-white/5">
+                <Lock className="w-8 h-8" />
+              </div>
+              <h3 className="font-headline-md text-headline-md text-pure-white text-[24px] leading-8 mb-4 font-bold">
+                Secure Sync
+              </h3>
+              <p className="font-body-md text-body-md text-muted-silver leading-relaxed">
+                Institutional-grade data encryption ensuring your proprietary store data remains sovereign and impenetrable.
+              </p>
+              <span className="absolute top-4 right-4 font-display-xl-mobile text-[48px] text-white/5 font-extrabold leading-none">
+                01
               </span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="relative pt-36 pb-20 md:pt-44 md:pb-28">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-16">
-          {/* Left Text */}
-          <motion.div 
-            className="flex-1 text-center lg:text-left space-y-6"
-            variants={staggerChildren}
-            initial="hidden"
-            animate="visible"
-          >
-            <motion.div 
-              variants={fadeUp}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Next-Gen eBay Automation Platform</span>
-            </motion.div>
-
-            <motion.h1 
-              variants={fadeUp}
-              className="text-4xl md:text-6xl font-black font-heading tracking-tight leading-[1.05] text-slate-950"
-            >
-              Automate your <br />
-              <span className="bg-gradient-to-r from-primary via-secondary to-accent-cyan bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
-                eBay Empire
+            </div>
+            {/* Step 2 */}
+            <div className="bg-surface p-12 border-t border-metallic-gold/20 hover:border-metallic-gold transition-colors duration-500 flex flex-col items-start relative">
+              <div className="text-metallic-gold mb-8 bg-onyx-black p-4 rounded-sm border border-white/5">
+                <TrendingUp className="w-8 h-8" />
+              </div>
+              <h3 className="font-headline-md text-headline-md text-pure-white text-[24px] leading-8 mb-4 font-bold">
+                AI SEO Overhaul
+              </h3>
+              <p className="font-body-md text-body-md text-muted-silver leading-relaxed">
+                Neural keyword injection analyzing millions of buyer data points for top-tier search placement.
+              </p>
+              <span className="absolute top-4 right-4 font-display-xl-mobile text-[48px] text-white/5 font-extrabold leading-none">
+                02
               </span>
-            </motion.h1>
+            </div>
+            {/* Step 3 */}
+            <div className="bg-surface p-12 border-t border-metallic-gold/20 hover:border-metallic-gold transition-colors duration-500 flex flex-col items-start relative">
+              <div className="text-metallic-gold mb-8 bg-onyx-black p-4 rounded-sm border border-white/5">
+                <Zap className="w-8 h-8" />
+              </div>
+              <h3 className="font-headline-md text-headline-md text-pure-white text-[24px] leading-8 mb-4 font-bold">
+                Auto-Push to Live
+              </h3>
+              <p className="font-body-md text-body-md text-muted-silver leading-relaxed">
+                Seamless, instantaneous execution at scale. Your entire catalog optimized without manual intervention.
+              </p>
+              <span className="absolute top-4 right-4 font-display-xl-mobile text-[48px] text-white/5 font-extrabold leading-none">
+                03
+              </span>
+            </div>
+          </div>
+        </section>
 
-            <motion.p 
-              variants={fadeUp}
-              className="text-base md:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium"
-            >
-              Rank higher, attract buyers, and skyrocket sales. SyncSell automatically fetches your active listings, rewrites them using Claude 4.6 Sonnet, and syncs updates to eBay in real-time.
-            </motion.p>
-
-            <motion.div 
-              variants={fadeUp}
-              className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
-            >
-              <button
+        {/* Pricing Anchor (The Core Offer) */}
+        <section className="mb-section-gap max-w-5xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-pure-white tracking-tight font-bold">
+              Partnership Tiers
+            </h2>
+            <p className="font-body-lg text-body-lg text-muted-silver mt-4 font-medium">
+              Applications reviewed on a strict qualitative basis.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            {/* Tier 1: Elite (Highlighted) */}
+            <div className="bg-graphite-surface p-12 border border-metallic-gold/30 relative flex flex-col overflow-hidden">
+              <div className="absolute top-0 right-0 bg-metallic-gold text-onyx-black font-label-caps text-label-caps uppercase px-6 py-2 tracking-widest font-extrabold text-[10px]">
+                Core Offer
+              </div>
+              <h3 className="font-headline-md text-headline-md text-pure-white mb-2 font-bold">
+                Elite
+              </h3>
+              <div className="flex items-baseline gap-2 mb-8 border-b border-white/10 pb-8">
+                <span className="font-display-xl-mobile text-[48px] leading-none font-bold text-metallic-gold">
+                  $1,497
+                </span>
+                <span className="font-label-caps text-label-caps text-muted-silver uppercase">
+                  /mo
+                </span>
+              </div>
+              <ul className="flex-1 space-y-4 mb-10 font-body-md text-body-md text-inverse-surface">
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="text-metallic-gold w-4 h-4" /> Full Neural SEO Overhaul
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="text-metallic-gold w-4 h-4" /> Up to 10,000 Active Listings
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="text-metallic-gold w-4 h-4" /> Daily Algorithmic Realignment
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="text-metallic-gold w-4 h-4" /> Priority Support SLA
+                </li>
+              </ul>
+              <button 
                 onClick={() => openAuth("signup")}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white font-bold shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 btn-shimmer"
+                className="w-full bg-metallic-gold text-onyx-black font-button-text text-button-text uppercase px-8 py-4 rounded-none hover:bg-primary-fixed-dim transition-colors duration-300 active:scale-95 cursor-pointer font-bold"
               >
-                <span>Start Free Trial</span>
-                <ArrowRight className="w-4.5 h-4.5" />
-              </button>
-
-            </motion.div>
-
-
-          </motion.div>
-
-          {/* Right Showcase Card */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex-1 w-full relative"
-          >
-            {/* Main Mockup Box */}
-            <div className="relative rounded-2xl bg-white border-2 border-slate-200 p-6 overflow-hidden shadow-2xl shadow-slate-300/50 animate-float">
-              {/* Top border decoration */}
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-secondary to-accent-cyan" />
-              
-              <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                </div>
-                <div className="text-[10px] text-slate-500 font-bold bg-slate-100 px-2.5 py-1 rounded border border-slate-200 font-mono">
-                  syncsell_optimization_engine
-                </div>
-              </div>
-
-              {/* Before Listing */}
-              <div className="mb-6 space-y-2 text-left">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-extrabold tracking-wider uppercase px-2.5 py-1 bg-red-50 text-red-600 border border-red-200 rounded-md">
-                    Original eBay Title
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-bold">Search Rank: #42 (Page 3)</span>
-                </div>
-                <div className="p-3.5 bg-red-50/50 rounded-lg border border-red-200 text-xs font-mono text-slate-700 leading-normal">
-                  Refurbished Apple iPhone 13 Pro Max - 128GB - Graphite - Good condition - fast ship
-                </div>
-              </div>
-
-              {/* Claude AI Thinking Flow */}
-              <div className="relative my-4 flex items-center justify-center">
-                <div className="w-full border-t border-dashed border-slate-300" />
-                <div className="absolute bg-white px-4 py-2 rounded-full border-2 border-slate-200 shadow-md flex items-center gap-2">
-                  <RefreshCw className="w-3.5 h-3.5 text-secondary animate-spin" />
-                  <span className="text-[10px] font-bold text-slate-800">Claude 4.6 Sonnet Rewriting...</span>
-                </div>
-              </div>
-
-              {/* After Listing */}
-              <div className="space-y-2 text-left">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-extrabold tracking-wider uppercase px-2.5 py-1 bg-green-50 text-green-700 border border-green-200 rounded-md">
-                    AI-Optimized SEO Title
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] text-green-700 font-bold bg-green-50 px-2 py-0.5 rounded border border-green-200">
-                      SEO Score: 98/100
-                    </span>
-                  </div>
-                </div>
-                <div className="p-3.5 bg-green-50/50 rounded-lg border-2 border-green-200 text-xs font-mono text-slate-950 font-semibold shadow-inner leading-normal">
-                  <span className="text-secondary font-extrabold">Apple iPhone 13 Pro Max</span> 128GB <span className="text-primary font-extrabold">Graphite Unlocked</span> Refurbished <span className="text-accent-cyan font-bold">Excellent Warranty</span>
-                </div>
-              </div>
-
-              {/* Live Status Overlay */}
-              <div className="mt-5 pt-4 border-t border-slate-200 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-600" />
-                  <span className="text-xs font-bold text-slate-700">Pushed to eBay via Trading API</span>
-                </div>
-                <div className="text-[10px] text-slate-500 font-bold">Processed in 1.2s</div>
-              </div>
-            </div>
-
-            {/* Glowing Accent Ring behind */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/[0.06] to-secondary/[0.06] rounded-2xl filter blur-2xl -z-10" />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* How it Works Section */}
-      <section id="how-it-works" className="py-24 relative bg-white border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/10 border border-secondary/20 text-xs font-bold text-secondary">
-              <Bot className="w-3.5 h-3.5" />
-              <span>Simple 3-Step Process</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black font-heading text-slate-950 tracking-tight">
-              How SyncSell Works
-            </h2>
-            <p className="text-sm text-slate-500 font-medium max-w-lg mx-auto">
-              From eBay connection to rank-boosted listings in under 60 seconds.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            {/* Connecting line */}
-            <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-[2px] bg-gradient-to-r from-primary/20 via-secondary/40 to-accent-cyan/20" />
-            
-            {[
-              { step: "01", title: "Connect Your Store", desc: "One-click OAuth login to securely link your eBay seller account. We encrypt everything with AES-256-GCM.", icon: Shield, color: "primary" },
-              { step: "02", title: "Fetch & Select Listings", desc: "Pull all your active inventory. Select individual items or batch-select hundreds for optimization.", icon: Layers, color: "secondary" },
-              { step: "03", title: "AI Optimizes & Syncs", desc: "Claude 4.6 Sonnet rewrites titles and descriptions. Optimized listings push back to eBay automatically.", icon: Sparkles, color: "accent-cyan" },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.15 }}
-                className="relative bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:bg-white transition-all duration-300 group shadow-sm hover:shadow-lg hover-lift text-center"
-              >
-                <div className={`w-14 h-14 rounded-2xl bg-${item.color}/10 border border-${item.color}/20 flex items-center justify-center text-${item.color} mx-auto mb-5 group-hover:scale-110 transition-transform duration-200 shadow-inner`}>
-                  <item.icon className="w-7 h-7" />
-                </div>
-                <div className="text-[10px] font-black text-slate-400 tracking-widest uppercase mb-2">Step {item.step}</div>
-                <h3 className="text-lg font-black font-heading mb-2 text-slate-950">{item.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                  {item.desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section id="features" className="py-24 relative bg-bg-primary border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-cyan/10 border border-accent-cyan/20 text-xs font-bold text-accent-cyan">
-              <BarChart3 className="w-3.5 h-3.5" />
-              <span>Enterprise-Grade Features</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black font-heading text-slate-950 tracking-tight">
-              Built for Professional eBay Sellers
-            </h2>
-            <p className="text-sm text-slate-500 font-medium max-w-lg mx-auto">
-              SyncSell packs high-grade automation and cutting-edge artificial intelligence into a beautifully simple dashboard.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0 }}
-              className="bg-white rounded-2xl p-7 border border-slate-200 hover:border-primary/40 transition-all duration-300 group shadow-sm hover:shadow-xl hover-lift"
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-5 group-hover:scale-110 transition-transform shadow-inner">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-black font-heading mb-2 text-slate-950">AI Title Optimizer</h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                Claude 4.6 Sonnet scans eBay search patterns, analyzes competitors, and structures your product titles for peak visibility and conversion.
-              </p>
-            </motion.div>
-
-            {/* Feature 2 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-white rounded-2xl p-7 border border-slate-200 hover:border-secondary/40 transition-all duration-300 group shadow-sm hover:shadow-xl hover-lift"
-            >
-              <div className="w-12 h-12 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary mb-5 group-hover:scale-110 transition-transform shadow-inner">
-                <Layers className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-black font-heading mb-2 text-slate-950">QStash Background Queue</h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                Never worry about server timeouts. Queue hundreds of listing optimizations safely using Upstash QStash&apos;s serverless event router.
-              </p>
-            </motion.div>
-
-            {/* Feature 3 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white rounded-2xl p-7 border border-slate-200 hover:border-accent-cyan/40 transition-all duration-300 group shadow-sm hover:shadow-xl hover-lift"
-            >
-              <div className="w-12 h-12 rounded-xl bg-accent-cyan/10 border border-accent-cyan/20 flex items-center justify-center text-accent-cyan mb-5 group-hover:scale-110 transition-transform shadow-inner">
-                <Shield className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-black font-heading mb-2 text-slate-950">OAuth Secure Sync</h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                Seamless one-click integration with eBay. Your connection tokens are encrypted using military-grade AES-256-GCM encryption.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section id="stats" className="py-24 relative bg-white border-t border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-8 md:p-12 border-2 border-slate-200 shadow-xl relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.03] via-secondary/[0.03] to-accent-cyan/[0.03]" />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center relative z-10">
-              <div>
-                <p className="text-4xl md:text-5xl font-black font-heading bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  82%
-                </p>
-                <p className="text-xs font-bold text-slate-500 mt-2">Avg. Search Rank Boost</p>
-              </div>
-              <div>
-                <p className="text-4xl md:text-5xl font-black font-heading bg-gradient-to-r from-secondary to-accent-cyan bg-clip-text text-transparent">
-                  {stats.listingsSynced}
-                </p>
-                <p className="text-xs font-bold text-slate-500 mt-2">Listings Synced</p>
-              </div>
-              <div>
-                <p className="text-4xl md:text-5xl font-black font-heading bg-gradient-to-r from-accent-cyan to-accent-magenta bg-clip-text text-transparent">
-                  2.4s
-                </p>
-                <p className="text-xs font-bold text-slate-500 mt-2">Optimization Speed</p>
-              </div>
-              <div>
-                <p className="text-4xl md:text-5xl font-black font-heading bg-gradient-to-r from-accent-magenta to-primary bg-clip-text text-transparent">
-                  {stats.listingsOptimized}
-                </p>
-                <p className="text-xs font-bold text-slate-500 mt-2">AI-Optimized Listings</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 relative bg-bg-primary">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-6"
-          >
-            <h2 className="text-3xl md:text-4xl font-black font-heading text-slate-950 tracking-tight">
-              Ready to Dominate eBay Search?
-            </h2>
-            <p className="text-sm text-slate-500 font-medium max-w-md mx-auto">
-              Join hundreds of sellers who are already ranking higher, selling faster, and scaling smarter with SyncSell.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button
-                onClick={() => openAuth("signup")}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white font-bold shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-1 cursor-pointer btn-shimmer"
-              >
-                <Zap className="w-4.5 h-4.5" />
-                <span>Start Free — No Credit Card</span>
+                See If You Qualify
               </button>
             </div>
-          </motion.div>
-        </div>
-      </section>
+            {/* Tier 2: Enterprise (Anchor) */}
+            <div className="bg-surface p-12 border border-white/10 flex flex-col opacity-90 hover:opacity-100 transition-opacity">
+              <h3 className="font-headline-md text-headline-md text-pure-white mb-2 font-bold">
+                Enterprise
+              </h3>
+              <div className="flex items-baseline gap-2 mb-8 border-b border-white/10 pb-8">
+                <span className="font-display-xl-mobile text-[48px] leading-none font-bold text-pure-white">
+                  $4,997
+                </span>
+                <span className="font-label-caps text-label-caps text-muted-silver uppercase">
+                  /mo
+                </span>
+              </div>
+              <ul className="flex-1 space-y-4 mb-10 font-body-md text-body-md text-muted-silver">
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="text-pure-white w-4 h-4" /> Everything in Elite
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="text-pure-white w-4 h-4" /> Unlimited Listings
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="text-pure-white w-4 h-4" /> Dedicated Growth Architect
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="text-pure-white w-4 h-4" /> Custom API Integration
+                </li>
+              </ul>
+              <button 
+                onClick={() => openAuth("signup")}
+                className="w-full bg-transparent border border-white text-pure-white font-button-text text-button-text uppercase px-8 py-4 rounded-none hover:bg-white/5 transition-colors duration-300 active:scale-95 cursor-pointer font-bold"
+              >
+                See If You Qualify
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-slate-200 text-center text-xs text-slate-500 bg-white">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary" />
-            <span className="font-extrabold text-slate-800 font-heading">SyncSell © 2026</span>
-          </div>
-          <div className="flex gap-6 font-bold text-slate-500">
-            <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms</a>
-            <a href="#" className="hover:text-primary transition-colors">Support</a>
-            <a href="#" className="hover:text-primary transition-colors">API Status</a>
+      <footer className="w-full border-t border-white/5 bg-onyx-black py-gutter">
+        <div className="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop gap-unit max-w-container-max mx-auto">
+          <span className="font-display-xl-mobile text-headline-md text-pure-white tracking-tighter">
+            SyncSell
+          </span>
+          <div className="flex flex-col md:flex-row gap-gutter items-center text-center">
+            <div className="flex gap-6">
+              <a className="font-label-caps text-label-caps text-muted-silver hover:text-pure-white transition-opacity uppercase tracking-widest" href="#">
+                Terms of Service
+              </a>
+              <a className="font-label-caps text-label-caps text-muted-silver hover:text-pure-white transition-opacity uppercase tracking-widest" href="#">
+                Privacy Policy
+              </a>
+            </div>
+            <span className="font-body-md text-body-md text-muted-silver">
+              © 2026 SyncSell. All rights reserved.
+            </span>
           </div>
         </div>
       </footer>

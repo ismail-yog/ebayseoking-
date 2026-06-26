@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Outfit, Montserrat } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -13,6 +13,13 @@ const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
   display: "swap",
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -40,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="en" className={`${inter.variable} ${outfit.variable} ${montserrat.variable}`}>
       <body className="antialiased font-sans bg-bg-primary text-slate-800 min-h-screen selection:bg-primary/20 selection:text-primary relative overflow-x-hidden">
         {/* Subtle ambient gradient blobs (reduced intensity for light theme) */}
         <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blob-indigo filter blur-[140px] pointer-events-none -z-10 opacity-60" />
