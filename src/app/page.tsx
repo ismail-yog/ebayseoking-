@@ -5,12 +5,11 @@ import Link from "next/link";
 import { 
   ArrowRight, Zap, TrendingUp, CheckCircle2, Lock
 } from "lucide-react";
-import { AuthModal } from "@/components/landing/AuthModal";
+import { BetaApplicationModal } from "@/components/landing/BetaApplicationModal";
 import { ShaderBackground } from "@/components/landing/ShaderBackground";
 
 export default function LandingPage() {
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<"login" | "signup" | "otp">("login");
+  const [betaModalOpen, setBetaModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -21,9 +20,8 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const openAuth = (tab: "login" | "signup" | "otp") => {
-    setAuthModalTab(tab);
-    setAuthModalOpen(true);
+  const openBetaModal = () => {
+    setBetaModalOpen(true);
   };
 
   return (
@@ -42,7 +40,7 @@ export default function LandingPage() {
             SyncSell
           </Link>
           <button 
-            onClick={() => openAuth("signup")}
+            onClick={openBetaModal}
             className="bg-metallic-gold text-onyx-black font-button-text text-button-text uppercase px-8 py-4 rounded-none hover:bg-primary-fixed-dim transition-colors active:scale-95 cursor-pointer font-bold"
           >
             Apply Now
@@ -64,7 +62,7 @@ export default function LandingPage() {
             Sophisticated neural infrastructure for stores managing $50k+ in monthly revenue.
           </p>
           <button 
-            onClick={() => openAuth("signup")}
+            onClick={openBetaModal}
             className="bg-metallic-gold text-onyx-black font-button-text text-button-text uppercase px-12 py-5 rounded-none hover:bg-primary-fixed-dim hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-300 active:scale-95 group flex items-center gap-3 cursor-pointer font-bold"
           >
             Apply For Beta
@@ -193,7 +191,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <button 
-                onClick={() => openAuth("signup")}
+                onClick={openBetaModal}
                 className="w-full bg-metallic-gold text-onyx-black font-button-text text-button-text uppercase px-8 py-4 rounded-none hover:bg-primary-fixed-dim transition-colors duration-300 active:scale-95 cursor-pointer font-bold"
               >
                 See If You Qualify
@@ -227,7 +225,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <button 
-                onClick={() => openAuth("signup")}
+                onClick={openBetaModal}
                 className="w-full bg-transparent border border-white text-pure-white font-button-text text-button-text uppercase px-8 py-4 rounded-none hover:bg-white/5 transition-colors duration-300 active:scale-95 cursor-pointer font-bold"
               >
                 See If You Qualify
@@ -259,11 +257,10 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Unified Authentication Modal */}
-      <AuthModal 
-        isOpen={authModalOpen} 
-        onClose={() => setAuthModalOpen(false)} 
-        defaultTab={authModalTab}
+      {/* Beta Application Modal */}
+      <BetaApplicationModal 
+        isOpen={betaModalOpen} 
+        onClose={() => setBetaModalOpen(false)} 
       />
     </div>
   );
