@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { createClientServer } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PromoGenerator } from "@/components/admin/PromoGenerator";
@@ -24,7 +23,75 @@ export default async function AdminPortalPage() {
 
   // Obscurity: return 404 Not Found if unauthorized
   if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
-    notFound();
+    return (
+      <div className="min-h-screen bg-[#0B0D17] text-white flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
+        {/* Decorative background gradients */}
+        <div className="absolute top-[20%] left-[10%] w-[300px] h-[300px] bg-[#B08F26]/[0.05] rounded-full blur-[80px]" />
+        <div className="absolute bottom-[20%] right-[10%] w-[300px] h-[300px] bg-[#E8C547]/[0.05] rounded-full blur-[80px]" />
+
+        <div className="max-w-md w-full bg-[#131722]/85 border-2 border-[#B08F26]/30 rounded-2xl p-8 text-center shadow-xl shadow-black/55 backdrop-blur-md relative z-10 space-y-6">
+          <div className="w-14 h-14 rounded-full bg-[#B08F26]/10 border border-[#B08F26]/30 flex items-center justify-center mx-auto shadow-md">
+            <ShieldAlert className="w-7 h-7 text-[#E8C547]" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-xl font-black tracking-tight text-white uppercase font-heading">
+              Admin Access Required
+            </h2>
+            <p className="text-xs text-slate-400">
+              This page is restricted to authorized system administrators only.
+            </p>
+          </div>
+
+          <div className="bg-[#1A1F2D] border border-slate-700/50 rounded-xl p-4 text-left space-y-3">
+            <h3 className="text-xs font-bold text-[#E8C547] uppercase tracking-wider">
+              Diagnostic Session Info:
+            </h3>
+            
+            <div className="space-y-2 text-xs">
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Your Session Status:</span>
+                <span className="font-semibold text-white animate-pulse">
+                  {user ? "Authenticated (Logged In)" : "Anonymous (Logged Out)"}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Your Logged-in Email:</span>
+                <span className="font-mono text-[#E8C547] break-all">
+                  {user?.email || "None (Not Logged In)"}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Authorized Admin Emails:</span>
+                <div className="max-h-[80px] overflow-y-auto font-mono text-[10px] text-slate-300 divide-y divide-slate-700/30 mt-1">
+                  {ADMIN_EMAILS.map((email) => (
+                    <div key={email} className="py-1">{email}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-2">
+            <Link
+              href="/dashboard"
+              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#E8C547] hover:bg-[#B08F26] text-black transition-all shadow-md shadow-[#E8C547]/10"
+            >
+              Go to Dashboard
+            </Link>
+            
+            <Link
+              href="/"
+              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-transparent border border-slate-700 text-slate-400 hover:text-white transition-all"
+            >
+              Return Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const adminClient = createAdminClient();
