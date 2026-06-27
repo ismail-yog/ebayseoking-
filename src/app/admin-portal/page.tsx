@@ -13,6 +13,7 @@ import {
 const ADMIN_EMAILS = [
   "connect@syncsell.org", 
   "immicpb@gmail.com", 
+  "mmicpb@gmail.com",
   "ismailbashir249@gmail.com", 
   "ismiyt26@gmail.com"
 ];
