@@ -3,8 +3,19 @@ import { createClientServer } from "@/lib/supabase/server";
 import { decryptCredentials } from "@/lib/encryption";
 import { getItemDescription } from "@/lib/ebay";
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
+    // Parse limit from request if provided
+    let userRequestedLimit = 10;
+    try {
+      const body = await req.json();
+      if (body && typeof body.limit === 'number') {
+        userRequestedLimit = body.limit;
+      }
+    } catch (e) {
+      // Ignore if no body
+    }
+
     const supabase = await createClientServer();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -60,12 +71,21 @@ export async function POST() {
           ? "https://api.ebay.com/ws/api.dll"
           : "https://api.sandbox.ebay.com/ws/api.dll";
 
+        // Use the dynamically requested limit from the frontend
+        const LISTING_LIMIT = userRequestedLimit;
+        
         const allItemsXml: string[] = [];
         let page = 1;
         let totalPages = 1;
+        let totalFetched = 0;
 
         do {
-          console.log(`Fetching active items page ${page} of ${totalPages} from eBay...`);
+          const remainingToFetch = LISTING_LIMIT - totalFetched;
+          if (remainingToFetch <= 0) break;
+          
+          const entriesPerPage = Math.min(remainingToFetch, 200);
+
+          console.log(`Fetching active items page ${page} of ${totalPages} from eBay (Limit: ${entriesPerPage})...`);
           // 2. Query eBay XML Trading API (GetMyeBaySelling)
           const xmlBody = `<?xml version="1.0" encoding="utf-8"?>
 <GetMyeBaySellingRequest xmlns="urn:ebay:apis:eBLBaseComponents">
@@ -75,11 +95,11 @@ export async function POST() {
   <ActiveList>
     <Sort>TimeLeft</Sort>
     <Pagination>
-      <EntriesPerPage>200</EntriesPerPage>
+      <EntriesPerPage>${entriesPerPage}</EntriesPerPage>
       <PageNumber>${page}</PageNumber>
     </Pagination>
   </ActiveList>
-  <DetailLevel>ReturnAll</DetailLevel>
+  <DetailLevel>ReturnSummary</DetailLevel>
 </GetMyeBaySellingRequest>`;
 
           const response = await fetch(endpoint, {
@@ -113,9 +133,15 @@ export async function POST() {
           const matches = xmlResponse.match(/<Item>([\s\S]*?)<\/Item>/g);
           if (matches && matches.length > 0) {
             allItemsXml.push(...matches);
+            totalFetched += matches.length;
           } else {
             console.warn(`No active items returned from page ${page}.`);
             break;
+          }
+
+          if (totalFetched >= LISTING_LIMIT) {
+             console.log(`Reached listing limit of ${LISTING_LIMIT}. Stopping fetch.`);
+             break;
           }
 
           page++;
@@ -148,31 +174,11 @@ export async function POST() {
 
           const existingMap = new Map(existingListings?.map(l => [l.ebay_item_id, l]) || []);
 
-          // Fetch descriptions in batches of 10 for new items only
-          console.log(`Fetching descriptions for ${rawItems.length} items...`);
-          const batchSize = 10;
-          itemsToInsert = [];
-
-          for (let i = 0; i < rawItems.length; i += batchSize) {
-            const chunk = rawItems.slice(i, i + batchSize);
-            const chunkRes = await Promise.all(
-              chunk.map(async (item) => {
-                const existing = existingMap.get(item.ebay_item_id);
-                if (existing && existing.description) {
-                  return { ...item, description: existing.description };
-                }
-
-                try {
-                  const desc = await getItemDescription(item.ebay_item_id, accessToken);
-                  return { ...item, description: desc || "eBay active listing." };
-                } catch (err) {
-                  console.error(`Failed to fetch description for ${item.ebay_item_id}:`, err);
-                  return { ...item, description: "eBay active listing." };
-                }
-              })
-            );
-            itemsToInsert.push(...chunkRes);
-          }
+          // We are skipping fetching descriptions here to save API limits (Lazy Loading)
+          itemsToInsert = rawItems.map(item => ({
+            ...item,
+            description: existingMap.get(item.ebay_item_id)?.description || "eBay active listing."
+          }));
 
           isLiveSync = true;
           console.log(`Live synced ${itemsToInsert.length} active items from eBay.`);

@@ -74,7 +74,24 @@ export async function processOptimizationJob(listingId: string, userId: string, 
       return { error: "Token decryption failed", status: 500 };
     }
 
-    // 3. Call Claude AI to rewrite listing
+    // 3. Ensure we have the full description before optimizing
+    let descriptionToOptimize = listing.description || "";
+    if (!descriptionToOptimize || descriptionToOptimize === "eBay active listing.") {
+      await logToDB(`Fetching full description for listing ${listing.ebay_item_id} from eBay (Lazy Load)...`, 'info');
+      try {
+        const { getItemDescription } = await import("@/lib/ebay");
+        descriptionToOptimize = await getItemDescription(listing.ebay_item_id, accessToken) || "";
+        
+        if (descriptionToOptimize) {
+          // Cache it in the DB
+          await supabase.from("product_listings").update({ description: descriptionToOptimize }).eq("id", listingId);
+        }
+      } catch (err: any) {
+        await logToDB(`Warning: Failed to fetch description from eBay: ${err.message}`, 'error');
+      }
+    }
+
+    // 4. Call Claude AI to rewrite listing
     await logToDB(`Sending data to Claude AI for Cassini SEO optimization...`, 'info');
     let optimizedTitle = "";
     let optimizedDesc = "";
@@ -83,7 +100,7 @@ export async function processOptimizationJob(listingId: string, userId: string, 
 
     try {
       const protectedElements = listing.protected_elements || listing.sku || "";
-      const result = await optimizeListingWithAI(listing.title, listing.description || "", protectedElements);
+      const result = await optimizeListingWithAI(listing.title, descriptionToOptimize, protectedElements);
       optimizedTitle = result.optimized_title;
       optimizedDesc = result.optimized_description;
       itemSpecifics = result.item_specifics || {};

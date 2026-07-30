@@ -45,6 +45,7 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [autoPublishMode, setAutoPublishMode] = useState(false);
+  const [fetchLimit, setFetchLimit] = useState<number>(10);
   const [credits, setCredits] = useState<ProfileStats>(profile);
   const router = useRouter();
 
@@ -245,9 +246,13 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
 
   const handleFetchListings = async () => {
     setIsFetching(true);
-    toast.loading("Fetching active listings from eBay...");
+    toast.loading(`Fetching up to ${fetchLimit} active listings from eBay...`);
     try {
-      const res = await fetch("/api/ebay/sync", { method: "POST" });
+      const res = await fetch("/api/ebay/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: fetchLimit }),
+      });
       const data = await res.json();
       toast.dismiss();
       if (!res.ok) throw new Error(data.error || "Failed to fetch listings");
@@ -329,15 +334,32 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
             <span className="text-xs font-bold text-pure-white">Auto-publish to eBay</span>
           </label>
 
-          <button
-            onClick={handleFetchListings}
-            disabled={isFetching}
-            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-sm bg-white/5 hover:bg-white/10 border border-white/10 text-pure-white text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            {isFetching ? <Clock className="w-4 h-4 animate-spin text-metallic-gold" /> : <DownloadCloud className="w-4 h-4 text-metallic-gold" />}
-            <span className="hidden sm:inline">Fetch Active Listings</span>
-            <span className="sm:hidden">Fetch</span>
-          </button>
+          <div className="flex items-center bg-white/5 border border-white/10 rounded-sm hover:bg-white/10 transition-colors">
+            <select
+              value={fetchLimit}
+              onChange={(e) => setFetchLimit(Number(e.target.value))}
+              disabled={isFetching}
+              className="bg-transparent text-pure-white text-xs font-bold pl-3 pr-8 py-2 appearance-none outline-none cursor-pointer border-r border-white/10 disabled:opacity-50"
+              style={{ WebkitAppearance: 'none' }}
+            >
+              <option value={10} className="bg-onyx-black text-pure-white">Limit: 10</option>
+              <option value={20} className="bg-onyx-black text-pure-white">Limit: 20</option>
+              <option value={30} className="bg-onyx-black text-pure-white">Limit: 30</option>
+              <option value={50} className="bg-onyx-black text-pure-white">Limit: 50</option>
+              <option value={100} className="bg-onyx-black text-pure-white">Limit: 100</option>
+              <option value={500} className="bg-onyx-black text-pure-white">Limit: 500</option>
+              <option value={1000} className="bg-onyx-black text-pure-white">Limit: 1000</option>
+            </select>
+            <button
+              onClick={handleFetchListings}
+              disabled={isFetching}
+              className="flex items-center gap-1.5 px-3 py-2 text-pure-white text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isFetching ? <Clock className="w-4 h-4 animate-spin text-metallic-gold" /> : <DownloadCloud className="w-4 h-4 text-metallic-gold" />}
+              <span className="hidden sm:inline">Fetch Active Listings</span>
+              <span className="sm:hidden">Fetch</span>
+            </button>
+          </div>
           
           <button
             onClick={toggleAutopilot}
