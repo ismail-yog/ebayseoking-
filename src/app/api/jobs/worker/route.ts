@@ -86,8 +86,9 @@ export async function processOptimizationJob(listingId: string, userId: string, 
           // Cache it in the DB
           await supabase.from("product_listings").update({ description: descriptionToOptimize }).eq("id", listingId);
         }
-      } catch (err: any) {
-        await logToDB(`Warning: Failed to fetch description from eBay: ${err.message}`, 'error');
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : "Unknown error";
+        await logToDB(`Warning: Failed to fetch description from eBay: ${errMsg}`, 'error');
       }
     }
 

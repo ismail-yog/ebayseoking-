@@ -504,13 +504,29 @@ export function ListingsPageContent({ initialListings, profile }: ListingsPageCo
             <p className="text-xs text-muted-silver leading-relaxed font-semibold">
               Your inventory is currently empty. Click the &quot;Fetch Active Listings&quot; button above to import your live inventory from eBay, or connect your store in the Overview tab first.
             </p>
-            <button
-              onClick={handleFetchListings}
-              disabled={isFetching}
-              className="mt-4 px-8 py-3 rounded-sm bg-metallic-gold hover:bg-primary-fixed-dim text-onyx-black text-sm font-bold uppercase shadow-lg shadow-metallic-gold/10 transition-all disabled:opacity-50 cursor-pointer"
-            >
-              {isFetching ? "Fetching from eBay..." : "Fetch Active Listings Now"}
-            </button>
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <select
+                value={fetchLimit}
+                onChange={(e) => setFetchLimit(Number(e.target.value))}
+                disabled={isFetching}
+                className="bg-onyx-black border border-white/20 rounded-sm text-pure-white text-sm font-bold px-4 py-3 appearance-none outline-none cursor-pointer disabled:opacity-50"
+              >
+                <option value={10}>Fetch 10 Items</option>
+                <option value={20}>Fetch 20 Items</option>
+                <option value={30}>Fetch 30 Items</option>
+                <option value={50}>Fetch 50 Items</option>
+                <option value={100}>Fetch 100 Items</option>
+                <option value={500}>Fetch 500 Items</option>
+                <option value={1000}>Fetch 1000 Items</option>
+              </select>
+              <button
+                onClick={handleFetchListings}
+                disabled={isFetching}
+                className="px-8 py-3 rounded-sm bg-metallic-gold hover:bg-primary-fixed-dim text-onyx-black text-sm font-bold uppercase shadow-lg shadow-metallic-gold/10 transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {isFetching ? "Fetching from eBay..." : "Fetch Now"}
+              </button>
+            </div>
           </div>
         </div>
       ) : (

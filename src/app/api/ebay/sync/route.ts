@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClientServer } from "@/lib/supabase/server";
 import { decryptCredentials } from "@/lib/encryption";
-import { getItemDescription } from "@/lib/ebay";
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +11,7 @@ export async function POST(req: Request) {
       if (body && typeof body.limit === 'number') {
         userRequestedLimit = body.limit;
       }
-    } catch (e) {
+    } catch {
       // Ignore if no body
     }
 
