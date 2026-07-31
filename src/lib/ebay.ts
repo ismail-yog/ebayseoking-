@@ -2,6 +2,92 @@
  * Helper to interact with the eBay Trading API using XML.
  * Generates XML payloads and posts to eBay servers.
  */
+import { createAdminClient } from "./supabase/admin";
+import { encryptCredentials, decryptCredentials } from "./encryption";
+
+export async function getValidEbayToken(userId: string): Promise<string> {
+  const supabase = createAdminClient();
+
+  const { data: creds, error } = await supabase
+    .from("store_credentials")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !creds) {
+    throw new Error("No eBay credentials found for user.");
+  }
+
+  // Decrypt tokens
+  const decrypted = decryptCredentials(
+    creds.encrypted_access_token,
+    creds.encrypted_refresh_token,
+    creds.iv,
+    creds.auth_tag
+  );
+
+  const expiresAt = new Date(creds.token_expires_at);
+  const now = new Date();
+  
+  // If token expires in less than 5 minutes, refresh it
+  if (expiresAt.getTime() - now.getTime() < 5 * 60 * 1000) {
+    console.log(`eBay token for ${userId} is expired or expiring soon. Refreshing...`);
+    
+    const clientId = process.env.EBAY_CLIENT_ID || "";
+    const clientSecret = process.env.EBAY_CLIENT_SECRET || "";
+    const isProd = process.env.EBAY_ENVIRONMENT === "production";
+
+    const tokenUrl = isProd
+      ? "https://api.ebay.com/identity/v1/oauth2/token"
+      : "https://api.sandbox.ebay.com/identity/v1/oauth2/token";
+
+    const credentialsBase64 = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+    
+    const tokenResponse = await fetch(tokenUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${credentialsBase64}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: decrypted.refreshToken,
+        scope: "https://api.ebay.com/oauth/api_scope https://api.ebay.com/oauth/api_scope/sell.inventory https://api.ebay.com/oauth/api_scope/sell.marketing https://api.ebay.com/oauth/api_scope/sell.account https://api.ebay.com/oauth/api_scope/commerce.identity.readonly",
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errText = await tokenResponse.text();
+      throw new Error(`eBay Refresh Token Error: ${tokenResponse.status} - ${errText}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+    const newAccessToken = tokenData.access_token;
+    const newExpiresIn = tokenData.expires_in;
+    const newTokenExpiresAt = new Date(Date.now() + newExpiresIn * 1000).toISOString();
+    
+    // Encrypt new tokens (eBay refresh token usually stays the same, but we encrypt both)
+    const newRefresh = tokenData.refresh_token || decrypted.refreshToken;
+    const encrypted = encryptCredentials(newAccessToken, newRefresh);
+    
+    await supabase
+      .from("store_credentials")
+      .update({
+        encrypted_access_token: encrypted.encryptedAccessToken,
+        encrypted_refresh_token: encrypted.encryptedRefreshToken,
+        iv: encrypted.iv,
+        auth_tag: encrypted.authTag,
+        token_expires_at: newTokenExpiresAt,
+        updated_at: new Date().toISOString()
+      })
+      .eq("user_id", userId);
+
+    console.log(`Successfully refreshed eBay token for user ${userId}.`);
+    return newAccessToken;
+  }
+
+  return decrypted.accessToken;
+}
 
 export async function getItemDescription(
   itemId: string,

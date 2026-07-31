@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { decryptCredentials } from "@/lib/encryption";
+
 import { optimizeListingWithAI } from "@/lib/anthropic";
 import { reviseEbayFixedPriceItem } from "@/lib/ebay";
 
@@ -54,24 +54,20 @@ export async function processOptimizationJob(listingId: string, userId: string, 
 
     let accessToken = "";
     try {
-      const decrypted = decryptCredentials(
-        credentials.encrypted_access_token,
-        credentials.encrypted_refresh_token,
-        credentials.iv,
-        credentials.auth_tag
-      );
-      accessToken = decrypted.accessToken;
-    } catch {
-      await logToDB("Token decryption failed. Reconnect store credentials.", 'error');
+      const { getValidEbayToken } = await import("@/lib/ebay");
+      accessToken = await getValidEbayToken(userId);
+    } catch (tokenErr: unknown) {
+      const msg = tokenErr instanceof Error ? tokenErr.message : "Token retrieval failed";
+      await logToDB(`Token retrieval failed: ${msg}. Reconnect store credentials.`, 'error');
       await supabase
         .from("product_listings")
         .update({
           status: "Failed",
-          error_message: "Failed to decrypt eBay access token. Reconnect store credentials.",
+          error_message: `Failed to retrieve valid eBay token: ${msg}`,
           updated_at: new Date().toISOString(),
         })
         .eq("id", listingId);
-      return { error: "Token decryption failed", status: 500 };
+      return { error: "Token retrieval failed", status: 500 };
     }
 
     // 3. Ensure we have the full description before optimizing

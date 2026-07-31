@@ -14,10 +14,8 @@ export async function GET(req: Request) {
 
   if (!code || !state || state !== savedState) {
     console.error("eBay OAuth validation failed. State mismatch or missing code.");
-    return NextResponse.json(
-      { error: "Security validation failed. Invalid state token or missing code." },
-      { status: 400 }
-    );
+    const origin = new URL(req.url).origin;
+    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
   // Clear CSRF cookie
@@ -146,7 +144,9 @@ export async function GET(req: Request) {
     const msg = (err && typeof err === "object" && "message" in err)
       ? (err as { message: string }).message
       : (err instanceof Error ? err.message : "Internal token exchange error");
-    console.error("eBay Callback Error:", err);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.error("eBay Callback Error:", msg);
+    
+    const origin = new URL(req.url).origin;
+    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 }

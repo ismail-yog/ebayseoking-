@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   cookieStore.set("ebay_oauth_state", state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" || process.env.EBAY_ENVIRONMENT === "production" || true, // Enforced for Hostinger
     sameSite: "lax",
     maxAge: 600, // 10 minutes
     path: "/",

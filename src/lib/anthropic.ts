@@ -21,15 +21,19 @@ export async function optimizeListingWithAI(title: string, description: string, 
     apiKey: apiKey,
   });
 
-  try {
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 3000,
-      system: `You are an expert eBay SEO copywriter specializing in eBay's Cassini search algorithm. Your goal is to analyze listing information, retain all critical seller data, and optimize the listing for maximum search visibility, click-through rates (CTR), and sales conversion organically. You must output ONLY a valid, parseable JSON object matching the requested schema. Do NOT wrap the JSON in markdown code blocks (e.g. do not write \`\`\`json or \`\`\`). Do not include any conversational filler.`,
-      messages: [
-        {
-          role: "user",
-          content: `Optimize the following eBay listing.
+  const MAX_RETRIES = 3;
+  let attempt = 0;
+
+  while (attempt < MAX_RETRIES) {
+    try {
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 3000,
+        system: `You are an expert eBay SEO copywriter specializing in eBay's Cassini search algorithm. Your goal is to analyze listing information, retain all critical seller data, and optimize the listing for maximum search visibility, click-through rates (CTR), and sales conversion organically. You must output ONLY a valid, parseable JSON object matching the requested schema. Do NOT wrap the JSON in markdown code blocks (e.g. do not write \`\`\`json or \`\`\`). Do not include any conversational filler.`,
+        messages: [
+          {
+            role: "user",
+            content: `Optimize the following eBay listing.
 Original Title: "${title}"
 Original Description: "${description}"
 Protected Elements/IDs (DO NOT CHANGE): "${protectedElements || 'None'}"
@@ -72,27 +76,40 @@ Response Schema:
   },
   "optimized_description": "Clean, responsive, inline-styled HTML description following the structured layout and injected with high-value semantic keywords"
 }`,
-        },
-      ],
-    });
+          },
+        ],
+      });
 
-    // Check if the response contains text block
-    const textBlock = response.content.find(block => block.type === 'text');
-    if (!textBlock) {
-      throw new Error("Anthropic API returned an empty or invalid response type.");
+      // Check if the response contains text block
+      const textBlock = response.content.find(block => block.type === 'text');
+      if (!textBlock) {
+        throw new Error("Anthropic API returned an empty or invalid response type.");
+      }
+      
+      // Parse response text to JSON
+      const parsedData = JSON.parse(textBlock.text.trim());
+      
+      return {
+        optimized_title: parsedData.optimized_title || title,
+        optimized_description: parsedData.optimized_description || description,
+        item_specifics: parsedData.item_specifics || {},
+        title_character_count: parsedData.title_character_count || undefined,
+      };
+    } catch (err: unknown) {
+      attempt++;
+      const isRateLimit = err instanceof Error && (err.message.includes("429") || err.message.includes("rate limit") || err.message.includes("Too Many Requests"));
+      
+      if (isRateLimit && attempt < MAX_RETRIES) {
+        const waitTime = Math.pow(2, attempt) * 1000;
+        console.warn(`Anthropic rate limit hit. Retrying in ${waitTime}ms (Attempt ${attempt} of ${MAX_RETRIES})...`);
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        continue;
+      }
+
+      console.error("Error communicating with Anthropic API:", err);
+      throw err;
     }
-    
-    // Parse response text to JSON
-    const parsedData = JSON.parse(textBlock.text.trim());
-    
-    return {
-      optimized_title: parsedData.optimized_title || title,
-      optimized_description: parsedData.optimized_description || description,
-      item_specifics: parsedData.item_specifics || {},
-      title_character_count: parsedData.title_character_count || undefined,
-    };
-  } catch (err: unknown) {
-    console.error("Error communicating with Anthropic API:", err);
-    throw err;
   }
+
+  throw new Error("Anthropic API failed after maximum retries.");
 }
