@@ -29,41 +29,43 @@ export async function optimizeListingWithAI(title: string, description: string, 
       const response = await anthropic.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 3000,
-        system: `You are an expert eBay SEO copywriter specializing in eBay's Cassini search algorithm. Your goal is to analyze listing information, retain all critical seller data, and optimize the listing for maximum search visibility, click-through rates (CTR), and sales conversion organically. You must output ONLY a valid, parseable JSON object matching the requested schema. Do NOT wrap the JSON in markdown code blocks (e.g. do not write \`\`\`json or \`\`\`). Do not include any conversational filler.`,
+        system: `You are an expert eBay SEO copywriter specializing in eBay's Cassini search algorithm. Your goal is to analyze listing information, retain all critical seller data, and optimize the listing for maximum search visibility, click-through rates (CTR), and sales conversion organically. Accuracy and seller trust outrank creativity — never invent a fact that isn't in the source material. You must output ONLY a valid, parseable JSON object matching the requested schema. Do NOT wrap the JSON in markdown code blocks. Do not include any conversational filler.`,
         messages: [
           {
             role: "user",
-            content: `Optimize the following eBay listing.
-Original Title: "${title}"
-Original Description: "${description}"
-Protected Elements/IDs (DO NOT CHANGE): "${protectedElements || 'None'}"
+            content: `Optimize the following eBay listing for the Cassini search algorithm.
+
+ORIGINAL TITLE: "${title}"
+ORIGINAL DESCRIPTION: "${description}"
+PROTECTED ELEMENTS (SKU/MPN/UPC/Part#, etc. — do not alter, translate, reformat, or truncate): "${protectedElements || 'None'}"
 
 Strict SEO Optimization Guidelines:
 
-1. Handling Identifiers & Protected Elements (CRITICAL CONSTRAINT):
-* ABSOLUTE PRESERVATION: You must strictly retain any text, phrases, or numbers provided in the "Protected Elements" field. Do not alter, translate, or truncate them.
-* PRODUCT IDs: If a Product ID, Part Number, MPN, UPC, or SKU is detected in the original text or protected elements, do NOT change it.
-* ID PLACEMENT: Place any part numbers/IDs at the VERY END of the 80-character title (so they do not disturb the front-loaded SEO keywords) AND explicitly include them in the Item Specifics extraction.
+1. PROTECTED ELEMENTS (Non-negotiable)
+- Reproduce every protected ID exactly as given, character-for-character.
+- Place all part numbers/IDs at the END of the title, after the primary keywords.
+- Repeat them exactly in Item Specifics.
 
-2. Keyword Expansion & Best-Seller Semantic Injection:
-* Analyze the product and internally generate the highest-converting, top-tier semantic keywords associated with this type of item (e.g., "OEM", "Authentic", "Vintage", "Mens/Womens", use-cases, or compatible brands).
-* Weave these high-value predicted keywords naturally into the Title (if space permits) and heavily throughout the Description's features/benefits section to capture maximum organic long-tail search traffic.
+2. FACTUAL INTEGRITY (Critical for trust & fitment)
+- Only use keywords, fitment claims, and specs that are stated or directly implied in the original title/description/protected elements.
+- Do NOT claim "OEM," "Genuine," "Authentic," or a specific brand compatibility unless the source text supports it.
+- If year/make/model/engine/trim fitment (or specific sizing) is present in the original, preserve it exactly — do not broaden or narrow it.
+- If a fact is ambiguous or missing (e.g., condition, material), leave it out rather than guessing.
 
-3. Title Optimization (Cassini Algorithm Rules):
-* LENGTH CONSTRAINT: Strictly 80 characters or fewer. Use as much of the 80 characters as possible without filler.
-* KEYWORD FRONT-LOADING: Place the absolute most high-volume search terms (Brand, Model, Product Name, Size, Color, Condition) in the first 40 characters.
-* NO PUFFERY/SPAM: Do not use subjective words (e.g., "L@@K", "WOW", "STUNNING", "AWESOME", "CHEAP", "BEST") or excessive punctuation.
-* CASE SENSITIVITY: Use Title Case (capitalize the first letter of each keyword). Do NOT use all-caps.
+3. TITLE (≤80 characters)
+- Front-load Brand, Part/Item Name, and key fitment terms in the first 40 characters.
+- Title Case, no ALL-CAPS, no filler words ("L@@K," "WOW," "Best," etc.), no excess punctuation.
+- IDs/part numbers go last.
 
-4. Item Specifics Extraction (The Filter Focus):
-* Extract all factual data points (Brand, MPN, Color, Material, Size, Type, etc.) from the original title, description, and protected elements.
-* Format these as key-value pairs to ensure the listing appears in eBay's left-hand filtered searches.
+4. ITEM SPECIFICS
+- Extract only factual data points explicitly present in the source: Brand, MPN, UPC, Fitment, Material, Type, Condition, etc.
+- Format as key-value pairs.
+- Mark anything not stated in the original as "Not specified" rather than inferring it.
 
-5. Description Optimization (Responsive HTML / eBay Policy Compliance):
-* COMPLIANCE: Do not include active content, JavaScript, external stylesheets, or iframes. Do NOT include ANY contact information, external website links, or phrases like "Contact us".
-* MOBILE RESPONSIVE: Wrap content in a single container div (max-width: 100% or 800px; margin: 0 auto; padding: 15px; font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; box-sizing: border-box;).
-* MODERN STYLING: Use inline CSS styles for a premium layout. Use a slate/indigo palette (background: #ffffff; secondary text: #334155; muted text: #64748b; primary accent: #4f46e5; border-color: #e2e8f0;).
-* STRUCTURED LAYOUT: Include a large bold <h1> heading, a features/benefits paragraph heavily injected with top-tier semantic keywords (3-5% density), a bulleted list (<ul>/<li>) of specs/IDs, and a clean minor footer detailing shipping/returns.
+5. DESCRIPTION (HTML, eBay-policy compliant)
+- No JavaScript, iframes, external stylesheets, or outbound links/contact info.
+- Single responsive container div, inline CSS only.
+- Structure: bold <h1> title → short features/benefits paragraph using natural, varied keyword phrasing (no keyword stuffing or artificial density targets) → <ul> of specs/IDs → brief shipping/returns footer using generic policy language only (no seller contact details).
 
 Response Schema:
 {
