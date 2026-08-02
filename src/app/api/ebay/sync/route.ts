@@ -162,7 +162,7 @@ export async function POST(req: Request) {
           // Fetch existing listings from DB to reuse descriptions and preserve statuses
           const { data: existingListings } = await supabase
             .from("product_listings")
-            .select("ebay_item_id, description, status, optimized_title, optimized_description")
+            .select("id, ebay_item_id, description, status, optimized_title, optimized_description")
             .eq("user_id", user.id);
 
           const existingMap = new Map(existingListings?.map(l => [l.ebay_item_id, l]) || []);
@@ -192,7 +192,7 @@ export async function POST(req: Request) {
     // Fetch existing listings from DB to preserve statuses (again just in case map changed)
     const { data: existingListings } = await supabase
       .from("product_listings")
-      .select("ebay_item_id, status, optimized_title, optimized_description")
+      .select("id, ebay_item_id, status, optimized_title, optimized_description")
       .eq("user_id", user.id);
 
     const existingMap = new Map(existingListings?.map(l => [l.ebay_item_id, l]) || []);
@@ -200,7 +200,8 @@ export async function POST(req: Request) {
     // Format items with user_id
     const listings = itemsToInsert.map((item) => {
       const existing = existingMap.get(item.ebay_item_id);
-      return {
+      
+      const listingObj: Record<string, unknown> = {
         user_id: user.id,
         ebay_item_id: item.ebay_item_id,
         title: item.title,
@@ -213,12 +214,18 @@ export async function POST(req: Request) {
         optimized_description: existing ? existing.optimized_description : null,
         updated_at: new Date().toISOString(),
       };
+      
+      if (existing && existing.id) {
+        listingObj.id = existing.id;
+      }
+      
+      return listingObj;
     });
 
-    // Upsert listings to prevent duplicate key errors
+    // Upsert listings based on Primary Key (id) implicitly
     const { error: upsertErr } = await supabase
       .from("product_listings")
-      .upsert(listings, { onConflict: "ebay_item_id" });
+      .upsert(listings);
 
     if (upsertErr) {
        console.error("Supabase Upsert Error: ", JSON.stringify(upsertErr));
