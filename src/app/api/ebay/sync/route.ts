@@ -129,6 +129,8 @@ export async function POST(req: Request) {
             totalFetched += matches.length;
           } else {
             console.warn(`No active items returned from page ${page}. Raw XML summary: ${xmlResponse.substring(0, 1500)}`);
+            // Store the raw XML in a variable to send back
+            (global as any).lastXmlResponse = xmlResponse;
             break;
           }
 
@@ -186,7 +188,8 @@ export async function POST(req: Request) {
     // If no active items were fetched, return success with count 0
     if (itemsToInsert.length === 0) {
       console.log("No listings found to sync.");
-      return NextResponse.json({ success: true, count: 0, live: isLiveSync });
+      const raw = (global as any).lastXmlResponse || "No XML captured";
+      return NextResponse.json({ error: `eBay returned 0 items. Raw response: ${raw.substring(0, 800)}` }, { status: 400 });
     }
 
     // Fetch existing listings from DB to preserve statuses (again just in case map changed)
