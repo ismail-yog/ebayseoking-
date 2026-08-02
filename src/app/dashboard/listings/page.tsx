@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClientServer } from "@/lib/supabase/server";
 import { ListingsPageContent } from "@/components/dashboard/ListingsPageContent";
 
+export const dynamic = "force-dynamic";
+
 export default async function ListingsPage() {
   const supabase = await createClientServer();
   const { data: { user } } = await supabase.auth.getUser();
