@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       try {
         // 1. Get Valid eBay Access Token (auto-refreshes if needed)
         const { getValidEbayToken } = await import("@/lib/ebay");
-        const accessToken = await getValidEbayToken(user.id);
+        const accessToken = await getValidEbayToken(user.id, supabase);
         const clientId = process.env.EBAY_CLIENT_ID || "";
         const clientSecret = process.env.EBAY_CLIENT_SECRET || "";
         const isProd = process.env.EBAY_ENVIRONMENT === "production";

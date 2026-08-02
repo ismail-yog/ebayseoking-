@@ -5,8 +5,10 @@
 import { createAdminClient } from "./supabase/admin";
 import { encryptCredentials, decryptCredentials } from "./encryption";
 
-export async function getValidEbayToken(userId: string): Promise<string> {
-  const supabase = createAdminClient();
+import { SupabaseClient } from "@supabase/supabase-js";
+
+export async function getValidEbayToken(userId: string, supabaseClient?: SupabaseClient): Promise<string> {
+  const supabase = supabaseClient || createAdminClient();
 
   const { data: creds, error } = await supabase
     .from("store_credentials")
