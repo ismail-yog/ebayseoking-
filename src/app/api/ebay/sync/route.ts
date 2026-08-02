@@ -130,6 +130,7 @@ export async function POST(req: Request) {
           } else {
             console.warn(`No active items returned from page ${page}. Raw XML summary: ${xmlResponse.substring(0, 1500)}`);
             // Store the raw XML in a variable to send back
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (global as any).lastXmlResponse = xmlResponse;
             break;
           }
@@ -188,6 +189,7 @@ export async function POST(req: Request) {
     // If no active items were fetched, return success with count 0
     if (itemsToInsert.length === 0) {
       console.log("No listings found to sync.");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const raw = (global as any).lastXmlResponse || "No XML captured";
       return NextResponse.json({ error: `eBay returned 0 items. Raw response: ${raw.substring(0, 800)}` }, { status: 400 });
     }
