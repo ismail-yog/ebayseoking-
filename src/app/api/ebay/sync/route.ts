@@ -92,7 +92,7 @@ export async function POST(req: Request) {
       <PageNumber>${page}</PageNumber>
     </Pagination>
   </ActiveList>
-  <DetailLevel>ReturnSummary</DetailLevel>
+  <DetailLevel>ReturnAll</DetailLevel>
 </GetMyeBaySellingRequest>`;
 
           const response = await fetch(endpoint, {
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
             allItemsXml.push(...matches);
             totalFetched += matches.length;
           } else {
-            console.warn(`No active items returned from page ${page}.`);
+            console.warn(`No active items returned from page ${page}. Raw XML summary: ${xmlResponse.substring(0, 1500)}`);
             break;
           }
 
