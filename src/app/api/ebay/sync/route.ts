@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClientServer } from "@/lib/supabase/server";
-import { decryptCredentials } from "@/lib/encryption";
+
 
 export async function POST(req: Request) {
   try {
@@ -53,15 +53,9 @@ export async function POST(req: Request) {
       console.log(`Store credentials found for user ${user.id}. Executing live eBay inventory fetch.`);
       
       try {
-        // 1. Decrypt eBay Access Token
-        const decrypted = decryptCredentials(
-          credentials.encrypted_access_token,
-          credentials.encrypted_refresh_token,
-          credentials.iv,
-          credentials.auth_tag
-        );
-        
-        const accessToken = decrypted.accessToken;
+        // 1. Get Valid eBay Access Token (auto-refreshes if needed)
+        const { getValidEbayToken } = await import("@/lib/ebay");
+        const accessToken = await getValidEbayToken(user.id);
         const clientId = process.env.EBAY_CLIENT_ID || "";
         const clientSecret = process.env.EBAY_CLIENT_SECRET || "";
         const isProd = process.env.EBAY_ENVIRONMENT === "production";
