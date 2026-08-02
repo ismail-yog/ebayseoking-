@@ -218,9 +218,12 @@ export async function POST(req: Request) {
     // Upsert listings to prevent duplicate key errors
     const { error: upsertErr } = await supabase
       .from("product_listings")
-      .upsert(listings, { onConflict: "user_id, ebay_item_id" });
+      .upsert(listings, { onConflict: "ebay_item_id" });
 
-    if (upsertErr) throw upsertErr;
+    if (upsertErr) {
+       console.error("Supabase Upsert Error: ", JSON.stringify(upsertErr));
+       throw new Error(`Database Error: ${upsertErr.message}`);
+    }
 
     console.log(`Successfully synced ${listings.length} listings (Live: ${isLiveSync}) for user ${user.id}`);
     return NextResponse.json({ success: true, count: listings.length, live: isLiveSync });
