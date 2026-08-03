@@ -88,9 +88,18 @@ Response Schema:
         throw new Error("Anthropic API returned an empty or invalid response type.");
       }
       
-      // Parse response text to JSON
-      const parsedData = JSON.parse(textBlock.text.trim());
+      let rawText = textBlock.text.trim();
       
+      if (rawText.startsWith("```json")) {
+        rawText = rawText.substring(7);
+      } else if (rawText.startsWith("```")) {
+        rawText = rawText.substring(3);
+      }
+      if (rawText.endsWith("```")) {
+        rawText = rawText.substring(0, rawText.length - 3);
+      }
+      
+      const parsedData = JSON.parse(rawText.trim());
       return {
         optimized_title: parsedData.optimized_title || title,
         optimized_description: parsedData.optimized_description || description,
