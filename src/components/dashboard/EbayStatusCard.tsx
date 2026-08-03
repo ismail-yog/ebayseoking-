@@ -18,11 +18,12 @@ export function EbayStatusCard({ isConnected, storeName, username }: EbayStatusC
     // Trigger simulation of sync trigger
     try {
       const res = await fetch("/api/ebay/sync", { method: "POST" });
-      if (!res.ok) throw new Error("Sync request failed");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Sync request failed");
       toast.success("Active listing fetch queued successfully!");
-    } catch {
-      // Graceful fallback simulation
-      toast.info("Simulated listing sync complete: Active eBay items fetched!");
+      window.location.reload();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Sync failed");
     } finally {
       setSyncing(false);
     }
