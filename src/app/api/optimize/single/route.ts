@@ -28,24 +28,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User record not found" }, { status: 404 });
     }
 
-    // Check if autopilot was paused externally
-    if (profile.is_autopilot_enabled === false) {
-      return NextResponse.json({ error: "Autopilot is paused" }, { status: 400 });
-    }
+    // 2. Increment optimizations_used in Supabase
+    const { error: updateErr } = await supabase
+      .from("users")
+      .update({ optimizations_used: profile.optimizations_used + 1 })
+      .eq("id", user.id);
 
-    const remainingCredits = profile.optimization_limit - profile.optimizations_used;
-
-    if (remainingCredits <= 0) {
-      return NextResponse.json({ error: "Insufficient Credits!" }, { status: 400 });
-    }
-
-    // 2. Increment optimizations_used in Supabase atomically by 1 using RPC
-    const { data: rpcData, error: rpcErr } = await supabase.rpc("deduct_optimization_credit", {
-      user_uuid: user.id
-    });
-
-    if (rpcErr || (rpcData && !rpcData.success)) {
-      return NextResponse.json({ error: rpcData?.error || "Race condition prevented: Insufficient Credits" }, { status: 400 });
+    if (updateErr) {
+      return NextResponse.json({ error: "Failed to deduct credits" }, { status: 400 });
     }
 
     // 3. Update listing status to In Progress
