@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     // Check if store credentials exist
     const { data: credentials } = await supabase
       .from("store_credentials")
-      .select("id, encrypted_access_token, encrypted_refresh_token, iv, auth_tag")
+      .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
 
