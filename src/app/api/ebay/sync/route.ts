@@ -29,6 +29,8 @@ export async function POST(req: Request) {
       .eq("user_id", user.id)
       .maybeSingle();
 
+    console.log("Fetched credentials object:", JSON.stringify(credentials));
+
     if (!credentials) {
       return NextResponse.json(
         { error: "No eBay store connected. Please connect your eBay store first." },
