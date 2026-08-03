@@ -208,7 +208,8 @@ export async function POST(req: Request) {
       
       const listingObj: Record<string, unknown> = {
         user_id: user.id,
-        store_credential_id: credentials.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        store_credential_id: (credentials as any).id,
         ebay_item_id: item.ebay_item_id,
         title: item.title,
         description: item.description,
