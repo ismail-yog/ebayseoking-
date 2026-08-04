@@ -227,17 +227,13 @@ export async function POST(req: Request) {
         updated_at: new Date().toISOString(),
       };
       
-      if (existing && existing.id) {
-        listingObj.id = existing.id;
-      }
-      
       return listingObj;
     });
 
-    // Upsert listings based on Primary Key (id) implicitly
+    // Upsert listings based on Unique Constraint
     const { error: upsertErr } = await supabase
       .from("product_listings")
-      .upsert(listings);
+      .upsert(listings, { onConflict: "user_id,ebay_item_id" });
 
     if (upsertErr) {
        console.error("Supabase Upsert Error: ", JSON.stringify(upsertErr));
