@@ -9,9 +9,9 @@ async function run() {
   const { data, error } = await supabase
     .from("product_listings")
     .select("id, ebay_item_id")
-    .eq("ebay_item_id", "TEST123456");
+    .eq("ebay_item_id", "TEST789012");
     
-  console.log("Inserted test row:", data, error);
+  console.log("Data:", data, "Error:", error);
 }
 
 run();

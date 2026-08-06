@@ -7,11 +7,16 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
   const { data, error } = await supabase
-    .from("product_listings")
-    .select("id, ebay_item_id")
-    .eq("ebay_item_id", "TEST123456");
+    .from('product_listings')
+    .select('id')
+    .limit(1);
     
-  console.log("Inserted test row:", data, error);
+  console.log("Can query product_listings?", !error);
+
+  // Instead of querying system tables, just look at how upsert might fail if the user's table actually doesn't have a default id!
+  // Wait, I ALREADY proved my test script successfully inserts without an ID.
+  // This means the user's table DOES have a default id!
+  
 }
 
 run();

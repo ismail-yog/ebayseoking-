@@ -209,6 +209,7 @@ export async function POST(req: Request) {
       const existing = existingMap.get(item.ebay_item_id);
       
       const listingObj: Record<string, unknown> = {
+        id: existing ? existing.id : crypto.randomUUID(),
         user_id: user.id,
         platform: "ebay",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -230,10 +231,10 @@ export async function POST(req: Request) {
       return listingObj;
     });
 
-    // Upsert listings based on Unique Constraint
+    // Upsert listings based on explicitly provided primary keys (id)
     const { error: upsertErr } = await supabase
       .from("product_listings")
-      .upsert(listings, { onConflict: "user_id,ebay_item_id" });
+      .upsert(listings);
 
     if (upsertErr) {
        console.error("Supabase Upsert Error: ", JSON.stringify(upsertErr));
