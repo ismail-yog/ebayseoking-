@@ -45,7 +45,6 @@ export async function GET(request: NextRequest) {
     sameSite: "lax",
     maxAge: 600, // 10 minutes
     path: "/",
-    domain: domain,
   });
 
   console.log(`Initiating eBay Auth. Redirecting to: ${redirectUrl} (Cookie Domain: ${domain || "default"})`);
